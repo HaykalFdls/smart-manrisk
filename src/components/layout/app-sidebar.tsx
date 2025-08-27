@@ -94,43 +94,20 @@ const mainNavItems: MenuItem[] = [
   {
     icon: ShieldAlert,
     title: 'Operational Risk',
-    submenu: [
-      { name: 'Dashboard & Report', href: '#' },
-    ],
+    submenu: [{ name: 'Dashboard & Report', href: '#' }],
   },
   {
     icon: ServerCog,
     title: 'IT Risk Management',
-    submenu: [
-      { name: 'Dashboard & Report', href: '#' },
-    ],
+    submenu: [{ name: 'Dashboard & Report', href: '#' }],
   },
   {
     icon: ShieldCheck,
     title: 'BCMS',
-    submenu: [
-      { name: 'Dashboard & Report', href: '#' },
-    ],
+    submenu: [{ name: 'Dashboard & Report', href: '#' }],
   },
-  {
-    icon: FileText,
-    title: 'Regulation Update',
-    submenu: [
-      { name: 'Dashboard & Report', href: '#' },
-      { name: 'Internal', href: '#' },
-      { name: 'External', href: '#' },
-    ],
-  },
-  {
-    icon: Gavel,
-    title: 'Governance & Compliance',
-    submenu: [
-      { name: 'Dashboard & Report', href: '#' },
-      { name: 'GCG Self-Assessment', href: '#' },
-      { name: 'Whistleblowing System (WBS)', href: '#' },
-      { name: 'Anti-Fraud Strategy (SAF)', href: '#' },
-    ],
-  },
+  { icon: FileText, title: 'Regulation Update', href: '#' },
+  { icon: Gavel, title: 'Governance & Compliance', href: '#' },
 ];
 
 const footerNavItems: MenuItem[] = [
