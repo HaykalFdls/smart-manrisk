@@ -84,7 +84,7 @@ const mainNavItems: MenuItem[] = [
   },
   {
     icon: Waves,
-    title: 'Liquidity, Market & Imbal Hasil Risk',
+    title: 'Liquidity, Market & Imbal Hasil',
     submenu: [
       { name: 'Dashboard & Report', href: '#' },
       { name: 'LCR', href: '#' },
@@ -92,6 +92,7 @@ const mainNavItems: MenuItem[] = [
       { name: 'NSFR', href: '#' },
       { name: 'Stress Test Likuiditas dan Pasar', href: '#' },
       { name: 'ATMR Risiko Pasar', href: '#' },
+      { name: 'IRRBB', href: '#' },
     ],
   },
   {
@@ -120,11 +121,14 @@ const mainNavItems: MenuItem[] = [
   },
   {
     icon: ShieldCheck,
-    title: 'BCMS',
+    title: 'Business Continuity Management System (BCMS)',
     submenu: [
-      { name: 'Dashboard & Report', href: '#' },
-      { name: 'Business Impact Analysis (BIA)', href: '#' },
+      { name: 'Dashboard & report', href: '#' },
+      { name: 'Business Impact Analysis', href: '#' },
+      { name: 'Risk & Threat Assessment', href: '#' },
       { name: 'Business Continuity Plan (BCP)', href: '#' },
+      { name: 'Disaster Recovery Plan (DRP)', href: '#' },
+      { name: 'Recovery & Resolution Plan', href: '#' },
     ],
   },
   { icon: FileText, title: 'Regulation Update', href: '#' },
