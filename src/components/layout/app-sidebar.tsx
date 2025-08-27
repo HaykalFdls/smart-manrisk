@@ -112,9 +112,10 @@ const mainNavItems: MenuItem[] = [
     title: 'IT Risk Management',
     submenu: [
       { name: 'Dashboard & Report', href: '#' },
-      { name: 'IT Risk Profile', href: '#' },
-      { name: 'IT Risk Register', href: '#' },
-      { name: 'IT Risk Assesment', href: '#' },
+      { name: 'Profil Risiko Ketahanan & Keamanan Siber', href: '#' },
+      { name: 'Tingkat Maturitas Digital Bank', href: '#' },
+      { name: 'CSIRT', href: '#' },
+      { name: 'Risk Profile & Risk Limit', href: '#' },
     ],
   },
   {
