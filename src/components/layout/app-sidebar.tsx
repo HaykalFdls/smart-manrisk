@@ -84,7 +84,7 @@ const mainNavItems: MenuItem[] = [
   },
   {
     icon: Waves,
-    title: 'Liquidity, Market & Imbal Hasil',
+    title: 'Liquidity & Market Risk',
     submenu: [
       { name: 'Dashboard & Report', href: '#' },
       { name: 'LCR', href: '#' },
@@ -99,13 +99,13 @@ const mainNavItems: MenuItem[] = [
     icon: ShieldAlert,
     title: 'Operational Risk',
     submenu: [
-        { name: 'Dashboard & Report', href: '#' },
-        { name: 'Risk Control Self-Assessment (RCSA)', href: '#' },
-        { name: 'Loss Event Database (LED)', href: '#' },
-        { name: 'ATMR Risiko Operasional', href: '#' },
-        { name: 'Risk Profile & Risk Limit', href: '#' },
-        { name: 'Risk Self-Assessment (RSA)', href: '#' },
-        { name: 'Stress Test Operasional', href: '#' },
+      { name: 'Dashboard & Report', href: '#' },
+      { name: 'Risk Control Self-Assessment (RCSA)', href: '#' },
+      { name: 'Loss Event Database (LED)', href: '#' },
+      { name: 'ATMR Risiko Operasional', href: '#' },
+      { name: 'Risk Profile & Risk Limit', href: '#' },
+      { name: 'Risk Self-Assessment (RSA)', href: '#' },
+      { name: 'Stress Test Operasional', href: '#' },
     ],
   },
   {
@@ -121,7 +121,7 @@ const mainNavItems: MenuItem[] = [
   },
   {
     icon: ShieldCheck,
-    title: 'Business Continuity Management System (BCMS)',
+    title: 'Business Continuity (BCMS)',
     submenu: [
       { name: 'Dashboard & report', href: '#' },
       { name: 'Business Impact Analysis', href: '#' },
