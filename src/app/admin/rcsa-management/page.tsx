@@ -14,7 +14,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { getRcsaData, updateRcsaData, type RCSAData } from '@/lib/rcsa-data';
 import { useToast } from '@/hooks/use-toast';
-import { Save, Shield } from 'lucide-react';
+import { PlusCircle, Save, Trash2 } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
 
 export default function RcsaManagementPage() {
@@ -32,12 +32,42 @@ export default function RcsaManagementPage() {
     newData[index][field] = value;
     setData(newData);
   };
+  
+  const handleAddNew = () => {
+    const newRisk: RCSAData = {
+        no: data.length > 0 ? Math.max(...data.map(d => d.no)) + 1 : 1,
+        potensiRisiko: '',
+        jenisRisiko: null,
+        penyebabRisiko: null,
+        dampakInheren: null,
+        frekuensiInheren: null,
+        besaranInheren: null,
+        levelInheren: null,
+        pengendalian: null,
+        dampakResidual: null,
+        kemungkinanResidual: null,
+        penilaianKontrol: null,
+        actionPlan: null,
+        pic: null,
+        keterangan: '',
+    };
+    setData([...data, newRisk]);
+  };
+
+  const handleDelete = (indexToDelete: number) => {
+    const newData = data.filter((_, index) => index !== indexToDelete);
+    setData(newData);
+  };
+
 
   const handleSave = () => {
     setIsSaving(true);
     // In a real app, this would be an API call
     setTimeout(() => {
-      updateRcsaData(data);
+      // Re-number before saving to ensure sequence is correct after deletes
+      const finalData = data.map((row, index) => ({ ...row, no: index + 1 }));
+      updateRcsaData(finalData);
+      setData(finalData); // Update state with re-numbered data
       toast({
         title: 'Sukses!',
         description: 'Data master RCSA berhasil diperbarui.',
@@ -54,10 +84,14 @@ export default function RcsaManagementPage() {
             Kelola Master RCSA
           </h1>
           <p className="text-muted-foreground">
-            Ubah pertanyaan potensi risiko yang akan diisi oleh unit operasional.
+            Tambah, ubah, atau hapus pertanyaan potensi risiko yang akan diisi oleh unit operasional.
           </p>
         </div>
         <div className="flex items-center gap-2">
+          <Button variant="outline" onClick={handleAddNew}>
+            <PlusCircle className="mr-2 h-4 w-4" />
+            Tambah Baris
+          </Button>
           <Button onClick={handleSave} disabled={isSaving}>
             <Save className="mr-2 h-4 w-4" />
             {isSaving ? 'Menyimpan...' : 'Simpan Perubahan'}
@@ -76,12 +110,13 @@ export default function RcsaManagementPage() {
                     Potensi Risiko (Pertanyaan untuk User)
                   </TableHead>
                    <TableHead>Keterangan (Opsional)</TableHead>
+                   <TableHead className="w-[50px]"></TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {data.map((row, index) => (
                   <TableRow key={row.no}>
-                    <TableCell className="text-center">{row.no}</TableCell>
+                    <TableCell className="text-center">{index + 1}</TableCell>
                     <TableCell>
                       <Textarea
                         value={row.potensiRisiko}
@@ -100,6 +135,11 @@ export default function RcsaManagementPage() {
                          className="min-h-[60px]"
                       />
                     </TableCell>
+                    <TableCell>
+                        <Button variant="ghost" size="icon" onClick={() => handleDelete(index)}>
+                            <Trash2 className="h-4 w-4 text-red-500" />
+                        </Button>
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -110,4 +150,3 @@ export default function RcsaManagementPage() {
     </div>
   );
 }
-
