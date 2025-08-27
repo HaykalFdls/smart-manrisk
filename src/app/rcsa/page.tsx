@@ -21,8 +21,8 @@ import {
 import { Button } from '@/components/ui/button';
 import {
   addRcsaSubmission,
-  getRcsaDraft,
-  updateRcsaDraft,
+  getRcsaData,
+  updateRcsaData,
   type RCSAData,
 } from '@/lib/rcsa-data';
 import { getRcsaMasterData } from '@/lib/rcsa-master-data';
@@ -104,7 +104,7 @@ export default function Rcsapage() {
 
   useEffect(() => {
     // Load current working data from draft, or master data if none exists
-    setData(getRcsaDraft());
+    setData(getRcsaData());
     setIsLoading(false);
   }, []);
 
@@ -154,7 +154,7 @@ export default function Rcsapage() {
   const handleSave = () => {
     setIsSaving(true);
     setTimeout(() => {
-      updateRcsaDraft(data);
+      updateRcsaData(data);
       toast({
         title: 'Sukses!',
         description: 'Data RCSA berhasil disimpan sebagai draf.',
@@ -175,7 +175,7 @@ export default function Rcsapage() {
     const masterData = getRcsaMasterData();
     setData(masterData);
     // Also update the draft with the clean master data
-    updateRcsaDraft(masterData);
+    updateRcsaData(masterData);
   };
 
   if (isLoading) {
