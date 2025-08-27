@@ -20,7 +20,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
-import { getRcsaData, updateRcsaData, type RCSAData } from '@/lib/rcsa-data';
+import { getRcsaData, addRcsaSubmission, updateRcsaData, type RCSAData } from '@/lib/rcsa-data';
 import { getRcsaMasterData } from '@/lib/rcsa-master-data';
 import { useToast } from '@/hooks/use-toast';
 import { Save, Send } from 'lucide-react';
@@ -66,6 +66,7 @@ export default function Rcsapage() {
   const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
+    // Load current working data, or master data if none exists
     setData(getRcsaData());
     setIsLoading(false);
   }, []);
@@ -112,6 +113,7 @@ export default function Rcsapage() {
   const handleSave = () => {
     setIsSaving(true);
     setTimeout(() => {
+      // updateRcsaData saves the current form state as a draft
       updateRcsaData(data);
       toast({
         title: 'Sukses!',
@@ -122,14 +124,18 @@ export default function Rcsapage() {
   };
   
   const handleSubmit = () => {
-     updateRcsaData(data);
+     // addRcsaSubmission adds the current data as a new report
+     addRcsaSubmission(data);
      toast({
         title: 'Data Terkirim!',
         description: 'Data RCSA Anda telah berhasil dikirim untuk ditinjau oleh admin.',
         variant: 'default',
      });
      // Reset form to master data after submission
-     setData(getRcsaMasterData());
+     const masterData = getRcsaMasterData();
+     setData(masterData);
+     // Also update the draft with the clean master data
+     updateRcsaData(masterData);
   };
 
   if (isLoading) {

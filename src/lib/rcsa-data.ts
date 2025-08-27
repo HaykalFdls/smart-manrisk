@@ -7,70 +7,95 @@ export type RCSAData = {
   no: number;
   unitKerja: string;
   potensiRisiko: string;
-  
-  // User Inputs
   jenisRisiko: string | null;
   penyebabRisiko: string | null;
-  
-  // Inherent Risk
   dampakInheren: number | null;
   frekuensiInheren: number | null;
-  
-  // Control
   pengendalian: string | null;
-
-  // Residual Risk
   dampakResidual: number | null;
   kemungkinanResidual: number | null;
-
-  // Assessment & Action
   penilaianKontrol: string | null;
   actionPlan: string | null;
   pic: string | null;
-
-  // Admin field
   keterangan: string | null;
-
-  // Calculated fields (will be added dynamically on the client)
-  besaranInheren?: number | null;
-  levelInheren?: string | null;
-  besaranResidual?: number | null;
-  levelResidual?: string | null;
 };
 
-const RCSA_DATA_KEY = 'rcsaDataStore';
+export type RCSASubmission = {
+    id: string;
+    submittedAt: string;
+    data: RCSAData[];
+}
 
-// Function to get the current data
+// Key for the user's current, unsubmitted work (draft)
+const RCSA_DRAFT_KEY = 'rcsaDraftStore';
+// Key for all historical submissions viewable by the admin
+const RCSA_SUBMISSIONS_KEY = 'rcsaSubmissionsStore';
+
+// Function to get the current DRAFT data
 export const getRcsaData = (): RCSAData[] => {
   if (typeof window === 'undefined') {
     return getRcsaMasterData();
   }
   try {
-    const item = window.localStorage.getItem(RCSA_DATA_KEY);
+    const item = window.localStorage.getItem(RCSA_DRAFT_KEY);
     if (item) {
       return JSON.parse(item);
     } else {
-      // If no data in localStorage, initialize with default master data
+      // If no draft in localStorage, initialize with default master data
       const masterData = getRcsaMasterData();
-      window.localStorage.setItem(RCSA_DATA_KEY, JSON.stringify(masterData));
+      window.localStorage.setItem(RCSA_DRAFT_KEY, JSON.stringify(masterData));
       return masterData;
     }
   } catch (error) {
-    console.error("Failed to read from localStorage", error);
+    console.error("Failed to read draft from localStorage", error);
     return getRcsaMasterData();
   }
 };
 
-// Function to update the data
+// Function to update the DRAFT data
 export const updateRcsaData = (newData: RCSAData[]) => {
    if (typeof window === 'undefined') {
     return;
   }
   try {
-     // We remove the calculated fields before storing, as they are recalculated on load.
-     const dataToStore = newData.map(({ besaranInheren, levelInheren, besaranResidual, levelResidual, ...rest }) => rest);
-     window.localStorage.setItem(RCSA_DATA_KEY, JSON.stringify(dataToStore));
+     window.localStorage.setItem(RCSA_DRAFT_KEY, JSON.stringify(newData));
   } catch (error) {
-     console.error("Failed to write to localStorage", error);
+     console.error("Failed to write draft to localStorage", error);
   }
 };
+
+
+// --- Functions for Submissions ---
+
+// Function to get ALL submissions
+export const getAllRcsaSubmissions = (): RCSASubmission[] => {
+    if (typeof window === 'undefined') {
+        return [];
+    }
+    try {
+        const item = window.localStorage.getItem(RCSA_SUBMISSIONS_KEY);
+        return item ? JSON.parse(item) : [];
+    } catch (error) {
+        console.error("Failed to read submissions from localStorage", error);
+        return [];
+    }
+};
+
+// Function to ADD a new submission
+export const addRcsaSubmission = (submissionData: RCSAData[]) => {
+    if (typeof window === 'undefined') {
+        return;
+    }
+    try {
+        const allSubmissions = getAllRcsaSubmissions();
+        const newSubmission: RCSASubmission = {
+            id: (allSubmissions.length + 1).toString(),
+            submittedAt: new Date().toISOString(),
+            data: submissionData,
+        };
+        const updatedSubmissions = [...allSubmissions, newSubmission];
+        window.localStorage.setItem(RCSA_SUBMISSIONS_KEY, JSON.stringify(updatedSubmissions));
+    } catch (error) {
+        console.error("Failed to add submission to localStorage", error);
+    }
+}
