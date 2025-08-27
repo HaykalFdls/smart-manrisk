@@ -102,7 +102,7 @@ const mainNavItems: MenuItem[] = [
     title: 'Operational Risk',
     submenu: [
       { name: 'Dashboard & Report', href: '#' },
-      { name: 'Risk Control Self-Assessment (RCSA)', href: '#' },
+      { name: 'Risk Control Self-Assessment (RCSA)', href: '/rcsa' },
       { name: 'Loss Event Database (LED)', href: '#' },
       { name: 'ATMR Risiko Operasional', href: '#' },
       { name: 'Risk Profile & Risk Limit', href: '#' },
@@ -152,7 +152,7 @@ const NavItemWithSubmenu = ({
   submenu: SubMenuItem[];
 }) => {
   const pathname = usePathname();
-  const isAnySubmenuActive = submenu.some(item => item.href === pathname);
+  const isAnySubmenuActive = submenu.some(item => pathname.startsWith(item.href) && item.href !== '#');
   const [isOpen, setIsOpen] = useState(isAnySubmenuActive);
 
   return (
