@@ -24,9 +24,9 @@ const getLevelFromBesaran = (besaran: number | null | undefined) => {
 };
 
 const DetailRow = ({ label, value }: { label: string, value: React.ReactNode }) => (
-    <div className="flex justify-between py-2">
+    <div className="grid grid-cols-2 justify-between py-2">
         <p className="text-sm text-muted-foreground">{label}</p>
-        <p className="text-sm font-medium text-right">{value || '-'}</p>
+        <div className="text-sm font-medium text-right">{value || '-'}</div>
     </div>
 );
 
