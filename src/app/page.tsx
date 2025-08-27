@@ -23,7 +23,6 @@ import {
 } from 'lucide-react';
 import KpiCard from '@/components/dashboard/kpi-card';
 import RiskChart from '@/components/dashboard/risk-chart';
-import AiSummary from '@/components/dashboard/ai-summary';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 
 export default function DashboardPage() {
@@ -109,13 +108,8 @@ export default function DashboardPage() {
             iconColor="text-green-500"
           />
         </div>
-        <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-3">
-          <div className="lg:col-span-2">
-            <RiskChart />
-          </div>
-          <div>
-            <AiSummary />
-          </div>
+        <div className="mt-6">
+          <RiskChart />
         </div>
       </main>
     </div>
