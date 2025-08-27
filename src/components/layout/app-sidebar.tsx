@@ -57,11 +57,11 @@ const mainNavItems: MenuItem[] = [
       { name: 'Tingkat Kesehatan Bank (TKB)', href: '#' },
       { name: 'Profil Risiko Bankwide', href: '#' },
       { name: 'ICAAP', href: '#' },
-      { name: 'Risk Appetite Statement (RAS)', href: '#' },
-      { name: 'Key Risk Indicator (KRI)', href: '#' },
-      { name: 'Early Warning System (EWS)', href: '#' },
+      { name: 'RAS', href: '#' },
+      { name: 'KRI', href: '#' },
+      { name: 'EWS', href: '#' },
       { name: 'Profil Risiko Cabang', href: '#' },
-      { name: 'Risk Maturity Index (RMI)', href: '#' },
+      { name: 'RMI', href: '#' },
       { name: 'ICoFR', href: '#' },
       { name: 'KMR', href: '#' },
       { name: 'Risk Register', href: '#' },
@@ -69,10 +69,17 @@ const mainNavItems: MenuItem[] = [
   },
   {
     icon: Landmark,
-    title: 'Credit & Investment',
+    title: 'Credit & Investment Risk',
     submenu: [
-      { name: 'Portfolio', href: '#' },
-      { name: 'Counterparties', href: '#' },
+      { name: 'Dashboard & Report', href: '#' },
+      { name: 'Root Cause of Credit Risk (RCCR)', href: '#' },
+      { name: 'Portofolio Guideline', href: '#' },
+      { name: 'Financing at Risk (FAR)', href: '#' },
+      { name: 'First Payment Default (FPD)', href: '#' },
+      { name: 'Risk Profile & Risk Limit', href: '#' },
+      { name: 'Vintage Analysis', href: '#' },
+      { name: 'Stress Test Kredit & Permodalan', href: '#' },
+      { name: 'ATMR Risiko Kredit', href: '#' },
     ],
   },
   { icon: Waves, title: 'Liquidity & Market', href: '#' },
@@ -105,10 +112,9 @@ const mainNavItems: MenuItem[] = [
 ];
 
 const footerNavItems: MenuItem[] = [
-    { icon: Settings, title: 'Settings', href: '#' },
-    { icon: LogOut, title: 'Logout', href: '#' }
+  { icon: Settings, title: 'Settings', href: '#' },
+  { icon: LogOut, title: 'Logout', href: '#' },
 ];
-
 
 const NavItemWithSubmenu = ({
   icon: Icon,
@@ -199,13 +205,13 @@ export function AppSidebar() {
           </SidebarMenu>
         </SidebarContent>
         <SidebarFooter>
-            <SidebarMenu>
-                 {footerNavItems.map((item) => (
-                    <SidebarMenuItem key={item.title}>
-                        <NavItem item={item} />
-                    </SidebarMenuItem>
-                ))}
-            </SidebarMenu>
+          <SidebarMenu>
+            {footerNavItems.map((item) => (
+              <SidebarMenuItem key={item.title}>
+                <NavItem item={item} />
+              </SidebarMenuItem>
+            ))}
+          </SidebarMenu>
         </SidebarFooter>
       </div>
     </Sidebar>
