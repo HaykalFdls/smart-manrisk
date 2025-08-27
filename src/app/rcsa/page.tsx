@@ -1,6 +1,6 @@
 
 'use client';
-
+import { useState } from 'react';
 import {
   Table,
   TableBody,
@@ -12,115 +12,133 @@ import {
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { FilePlus } from 'lucide-react';
+import { Textarea } from '@/components/ui/textarea';
 
-const rcsaData = [
+type RCSAData = {
+  no: number;
+  potensiRisiko: string;
+  jenisRisiko: string | null;
+  penyebabRisiko: string | null;
+  dampakInheren: number | null;
+  frekuensiInheren: number | null;
+  pengendalian: string | null;
+  dampakResidual: number | null;
+  kemungkinanResidual: number | null;
+  penilaianKontrol: string | null;
+  actionPlan: string | null;
+  pic: string | null;
+  keterangan: string | null;
+};
+
+const initialRcsaData: RCSAData[] = [
   {
     no: 1,
-    unitKerja: 'Teller',
     potensiRisiko: 'Terdapat selisih KAS Teller',
     jenisRisiko: 'Operasional',
     penyebabRisiko: 'Human error',
     dampakInheren: 4,
     frekuensiInheren: 1,
-    besaranInheren: 4,
-    levelInheren: 'LOW',
     pengendalian: 'Rekonsiliasi kas harian',
     dampakResidual: 2,
     kemungkinanResidual: 1,
-    besaranResidual: 2,
-    levelResidual: 'LOW',
     penilaianKontrol: 'Efektif',
-    prioritas: 24,
     actionPlan: 'Tingkatkan frekuensi supervisi',
     pic: 'Kepala Teller',
     keterangan: '',
   },
   {
     no: 2,
-    unitKerja: 'Teller',
     potensiRisiko: 'Terdapat pengisian slip oleh nasabah yang tidak dilakukan dengan benar (tidak lengkap, salah alamat, tidak diverifikasi)',
     jenisRisiko: 'Operasional',
     penyebabRisiko: 'Kurangnya pemahaman nasabah',
     dampakInheren: 3,
     frekuensiInheren: 2,
-    besaranInheren: 6,
-    levelInheren: 'LOW TO MODERATE',
     pengendalian: 'Verifikasi ulang oleh teller',
     dampakResidual: 2,
     kemungkinanResidual: 2,
-    besaranResidual: 4,
-    levelResidual: 'LOW',
     penilaianKontrol: 'Tidak Efektif',
-    prioritas: 22,
     actionPlan: 'Edukasi nasabah melalui poster',
     pic: 'Kepala Cabang',
     keterangan: '',
   },
   {
     no: 3,
-    unitKerja: 'Teller',
     potensiRisiko: 'Terjadi kelebihan pembayaran yang pada nasabah yang menarik uang cash pada teller',
     jenisRisiko: null,
     penyebabRisiko: null,
     dampakInheren: null,
     frekuensiInheren: null,
-    besaranInheren: 0,
-    levelInheren: '#N/A',
     pengendalian: null,
     dampakResidual: null,
     kemungkinanResidual: null,
-    besaranResidual: 0,
-    levelResidual: '#N/A',
     penilaianKontrol: 'Cukup Efektif',
-    prioritas: '#N/A',
     actionPlan: null,
     pic: null,
     keterangan: null,
   },
-    {
+  {
     no: 4,
-    unitKerja: 'Teller',
     potensiRisiko: 'Terdapat pemalsuan tandatangan dari nasabah terhadap slip dll',
     jenisRisiko: null,
     penyebabRisiko: null,
     dampakInheren: null,
     frekuensiInheren: null,
-    besaranInheren: 0,
-    levelInheren: '#N/A',
     pengendalian: null,
     dampakResidual: null,
     kemungkinanResidual: null,
-    besaranResidual: 0,
-    levelResidual: '#N/A',
     penilaianKontrol: '#N/A',
-    prioritas: '#N/A',
     actionPlan: null,
     pic: null,
     keterangan: null,
   },
   {
     no: 5,
-    unitKerja: 'Teller',
     potensiRisiko: 'Terdapat selisih antara uang pada Mesin ATM dengan catatan buku besar kas ATM',
     jenisRisiko: null,
     penyebabRisiko: null,
     dampakInheren: null,
     frekuensiInheren: null,
-    besaranInheren: 0,
-    levelInheren: '#N/A',
     pengendalian: null,
     dampakResidual: null,
     kemungkinanResidual: null,
-    besaranResidual: 0,
-    levelResidual: '#N/A',
     penilaianKontrol: '#N/A',
-    prioritas: '#N/A',
     actionPlan: null,
     pic: null,
     keterangan: null,
   },
 ];
+
+const jenisRisikoOptions = [
+    "Risiko Kredit",
+    "Risiko Pasar",
+    "Risiko Likuiditas",
+    "Risiko Operasional",
+    "Risiko Hukum",
+    "Risiko Reputasi",
+    "Risiko Stratejik",
+    "Risiko Kepatuhan",
+    "Risiko Imbal Hasil",
+    "Risiko Investasi"
+];
+
+const calculateLevel = (besaran: number | null): string => {
+    if (besaran === null || isNaN(besaran) || besaran <= 0) return '#N/A';
+    if (besaran <= 5) return 'LOW';
+    if (besaran <= 10) return 'LOW TO MODERATE';
+    if (besaran <= 15) return 'MODERATE';
+    if (besaran <= 20) return 'MODERATE TO HIGH';
+    return 'HIGH';
+}
+
 
 const getLevelBadgeVariant = (level: string) => {
   switch (level) {
@@ -130,6 +148,8 @@ const getLevelBadgeVariant = (level: string) => {
       return 'secondary';
     case 'MODERATE':
         return 'secondary';
+    case 'MODERATE TO HIGH':
+        return 'destructive';
     case 'HIGH':
       return 'destructive';
     default:
@@ -138,6 +158,14 @@ const getLevelBadgeVariant = (level: string) => {
 };
 
 export default function RcsasPage() {
+  const [data, setData] = useState<RCSAData[]>(initialRcsaData);
+  
+  const handleInputChange = <K extends keyof RCSAData>(index: number, field: K, value: RCSAData[K]) => {
+      const newData = [...data];
+      newData[index][field] = value;
+      setData(newData);
+  };
+  
   return (
     <div className="flex flex-1 flex-col p-4 md:p-6 lg:p-8">
       <div className="flex items-center justify-between mb-8">
@@ -157,18 +185,17 @@ export default function RcsasPage() {
                 <TableHeader>
                     <TableRow>
                     <TableHead rowSpan={2} className="text-center align-middle border">NO.</TableHead>
-                    <TableHead rowSpan={2} className="text-center align-middle border">UNIT KERJA (ADMIN)</TableHead>
-                    <TableHead rowSpan={2} className="text-center align-middle border">POTENSI RISIKO (ADMIN)</TableHead>
-                    <TableHead rowSpan={2} className="text-center align-middle border">Jenis Risiko (USER DROPDOWN)</TableHead>
-                    <TableHead rowSpan={2} className="text-center align-middle border">PENYEBAB RISIKO (USER)</TableHead>
+                    <TableHead rowSpan={2} className="text-center align-middle border min-w-[300px]">POTENSI RISIKO (ADMIN)</TableHead>
+                    <TableHead rowSpan={2} className="text-center align-middle border min-w-[200px]">Jenis Risiko (USER DROPDOWN)</TableHead>
+                    <TableHead rowSpan={2} className="text-center align-middle border min-w-[250px]">PENYEBAB RISIKO (USER)</TableHead>
                     <TableHead colSpan={4} className="text-center align-middle border">RISIKO INHEREN</TableHead>
-                    <TableHead rowSpan={2} className="text-center align-middle border">PENGENDALIAN/MITIGASI RISIKO (USER)</TableHead>
+                    <TableHead rowSpan={2} className="text-center align-middle border min-w-[250px]">PENGENDALIAN/MITIGASI RISIKO (USER)</TableHead>
                     <TableHead colSpan={4} className="text-center align-middle border">RISIKO RESIDUAL</TableHead>
-                    <TableHead rowSpan={2} className="text-center align-middle border">Penilaian Tingkat Efektivitas Kontrol</TableHead>
+                    <TableHead rowSpan={2} className="text-center align-middle border min-w-[150px]">Penilaian Tingkat Efektivitas Kontrol</TableHead>
                     <TableHead rowSpan={2} className="text-center align-middle border">Prioritas</TableHead>
-                    <TableHead rowSpan={2} className="text-center align-middle border">Action Plan/Mitigasi</TableHead>
-                    <TableHead rowSpan={2} className="text-center align-middle border">PIC</TableHead>
-                    <TableHead rowSpan={2} className="text-center align-middle border">KETERANGAN</TableHead>
+                    <TableHead rowSpan={2} className="text-center align-middle border min-w-[250px]">Action Plan/Mitigasi</TableHead>
+                    <TableHead rowSpan={2} className="text-center align-middle border min-w-[150px]">PIC</TableHead>
+                    <TableHead rowSpan={2} className="text-center align-middle border min-w-[250px]">KETERANGAN</TableHead>
                     </TableRow>
                     <TableRow>
                     <TableHead className="text-center border">DAMPAK</TableHead>
@@ -182,33 +209,75 @@ export default function RcsasPage() {
                     </TableRow>
                 </TableHeader>
                 <TableBody>
-                    {rcsaData.map((row) => (
-                    <TableRow key={row.no}>
-                        <TableCell className="text-center border">{row.no}</TableCell>
-                        <TableCell className="border">{row.unitKerja}</TableCell>
-                        <TableCell className="border max-w-xs">{row.potensiRisiko}</TableCell>
-                        <TableCell className="border">{row.jenisRisiko}</TableCell>
-                        <TableCell className="border">{row.penyebabRisiko}</TableCell>
-                        <TableCell className="text-center border">{row.dampakInheren}</TableCell>
-                        <TableCell className="text-center border">{row.frekuensiInheren}</TableCell>
-                        <TableCell className="text-center border">{row.besaranInheren}</TableCell>
-                        <TableCell className="text-center border">
-                            <Badge variant={getLevelBadgeVariant(row.levelInheren)}>{row.levelInheren}</Badge>
-                        </TableCell>
-                        <TableCell className="border">{row.pengendalian}</TableCell>
-                        <TableCell className="text-center border">{row.dampakResidual}</TableCell>
-                        <TableCell className="text-center border">{row.kemungkinanResidual}</TableCell>
-                        <TableCell className="text-center border">{row.besaranResidual}</TableCell>
-                        <TableCell className="text-center border">
-                            <Badge variant={getLevelBadgeVariant(row.levelResidual)}>{row.levelResidual}</Badge>
-                        </TableCell>
-                        <TableCell className="border">{row.penilaianKontrol}</TableCell>
-                        <TableCell className="text-center border">{row.prioritas}</TableCell>
-                        <TableCell className="border">{row.actionPlan}</TableCell>
-                        <TableCell className="border">{row.pic}</TableCell>
-                        <TableCell className="border">{row.keterangan}</TableCell>
-                    </TableRow>
-                    ))}
+                    {data.map((row, index) => {
+                        const besaranInheren = (row.dampakInheren ?? 0) * (row.frekuensiInheren ?? 0);
+                        const levelInheren = calculateLevel(besaranInheren);
+                        const besaranResidual = (row.dampakResidual ?? 0) * (row.kemungkinanResidual ?? 0);
+                        const levelResidual = calculateLevel(besaranResidual);
+
+                        return (
+                            <TableRow key={row.no}>
+                                <TableCell className="text-center border">{row.no}</TableCell>
+                                <TableCell className="border max-w-xs">{row.potensiRisiko}</TableCell>
+                                <TableCell className="border">
+                                    <Select
+                                        value={row.jenisRisiko ?? ""}
+                                        onValueChange={(value) => handleInputChange(index, 'jenisRisiko', value)}
+                                    >
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Pilih Jenis Risiko" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {jenisRisikoOptions.map(option => (
+                                                <SelectItem key={option} value={option}>{option}</SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                </TableCell>
+                                <TableCell className="border">
+                                    <Textarea 
+                                        value={row.penyebabRisiko ?? ""}
+                                        onChange={(e) => handleInputChange(index, 'penyebabRisiko', e.target.value)}
+                                        placeholder="Isi penyebab risiko..."
+                                    />
+                                </TableCell>
+                                <TableCell className="text-center border">
+                                    <Input 
+                                        type="number"
+                                        min="1" max="5"
+                                        value={row.dampakInheren ?? ""}
+                                        onChange={(e) => handleInputChange(index, 'dampakInheren', parseInt(e.target.value, 10))}
+                                        className="text-center"
+                                    />
+                                </TableCell>
+                                <TableCell className="text-center border">
+                                    <Input 
+                                        type="number" 
+                                        min="1" max="5"
+                                        value={row.frekuensiInheren ?? ""}
+                                        onChange={(e) => handleInputChange(index, 'frekuensiInheren', parseInt(e.target.value, 10))}
+                                        className="text-center"
+                                    />
+                                </TableCell>
+                                <TableCell className="text-center border font-bold">{!isNaN(besaranInheren) && besaranInheren > 0 ? besaranInheren : ''}</TableCell>
+                                <TableCell className="text-center border">
+                                    <Badge variant={getLevelBadgeVariant(levelInheren)}>{levelInheren}</Badge>
+                                </TableCell>
+                                <TableCell className="border">{row.pengendalian}</TableCell>
+                                <TableCell className="text-center border">{row.dampakResidual}</TableCell>
+                                <TableCell className="text-center border">{row.kemungkinanResidual}</TableCell>
+                                <TableCell className="text-center border">{!isNaN(besaranResidual) && besaranResidual > 0 ? besaranResidual : ''}</TableCell>
+                                <TableCell className="text-center border">
+                                    <Badge variant={getLevelBadgeVariant(levelResidual)}>{levelResidual}</Badge>
+                                </TableCell>
+                                <TableCell className="border">{row.penilaianKontrol}</TableCell>
+                                <TableCell className="text-center border">{/* Prioritas */}</TableCell>
+                                <TableCell className="border">{row.actionPlan}</TableCell>
+                                <TableCell className="border">{row.pic}</TableCell>
+                                <TableCell className="border">{row.keterangan}</TableCell>
+                            </TableRow>
+                        );
+                    })}
                 </TableBody>
                 </Table>
             </div>
