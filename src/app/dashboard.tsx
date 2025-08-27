@@ -1,50 +1,47 @@
-
 'use client';
-import {
-  DollarSign,
-  Users,
-  CreditCard,
-  Activity,
-} from 'lucide-react';
+
+import { BarChart, CreditCard, DollarSign, Users } from 'lucide-react';
 import KpiCard from '@/components/dashboard/kpi-card';
 import RiskChart from '@/components/dashboard/risk-chart';
 
-export default function DashboardPage() {
+export default function Dashboard() {
   return (
     <div className="flex flex-1 flex-col p-4 md:p-6 lg:p-8">
       <div className="mb-8">
         <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
         <p className="text-muted-foreground">
-          Welcome to your SMART Dashboard.
+          Welcome to your RiskWise Dashboard.
         </p>
       </div>
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 md:grid-cols-2 md:gap-8 lg:grid-cols-4">
         <KpiCard
-          title="Total Sales"
-          value="$45,231.89"
+          title="Total Risks"
+          value="1,254"
           description="+20.1% from last month"
-          Icon={DollarSign}
+          Icon={BarChart}
         />
         <KpiCard
-          title="Subscriptions"
-          value="+2350"
+          title="Open Issues"
+          value="34"
           description="+180.1% from last month"
           Icon={Users}
+          iconColor="text-red-500"
         />
         <KpiCard
-          title="Credit Risk"
-          value="12,234"
+          title="KRIs Breached"
+          value="12"
           description="+19% from last month"
           Icon={CreditCard}
+          iconColor="text-orange-500"
         />
         <KpiCard
-          title="Active Now"
-          value="+573"
-          description="+201 since last hour"
-          Icon={Activity}
+          title="Potential Loss"
+          value="$5.2M"
+          description="+2 since last hour"
+          Icon={DollarSign}
         />
       </div>
-      <div className="mt-8 grid grid-cols-1 gap-8">
+      <div className="mt-8">
         <RiskChart />
       </div>
     </div>

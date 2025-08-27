@@ -1,6 +1,6 @@
 
-import { redirect } from 'next/navigation';
+import Dashboard from '@/app/dashboard';
 
-export default function RootPage() {
-  redirect('/login');
+export default function HomePage() {
+  return <Dashboard />;
 }

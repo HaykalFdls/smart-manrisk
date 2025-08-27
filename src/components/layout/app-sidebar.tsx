@@ -139,7 +139,6 @@ const mainNavItems: MenuItem[] = [
 
 const footerNavItems: MenuItem[] = [
   { icon: Settings, title: 'Settings', href: '#' },
-  { icon: LogOut, title: 'Logout', href: '/login' },
 ];
 
 const NavItemWithSubmenu = ({
