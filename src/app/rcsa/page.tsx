@@ -187,14 +187,8 @@ export default function Rcsapage() {
                 {data.map((row, index) => (
                   <TableRow key={row.no}>
                     <TableCell className="text-center">{row.no}</TableCell>
-                    <TableCell>
-                      <Textarea
-                        value={row.potensiRisiko}
-                        onChange={(e) =>
-                          handleInputChange(index, 'potensiRisiko', e.target.value)
-                        }
-                        className="min-h-[60px]"
-                      />
+                    <TableCell className="font-medium bg-muted/30">
+                      {row.potensiRisiko}
                     </TableCell>
                     <TableCell>
                        <Select

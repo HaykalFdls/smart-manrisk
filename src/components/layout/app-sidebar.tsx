@@ -31,6 +31,7 @@ import {
   ChevronDown,
   Settings,
   LogOut,
+  Shield,
   type LucideIcon,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -137,6 +138,16 @@ const mainNavItems: MenuItem[] = [
   { icon: Gavel, title: 'Governance & Compliance', href: '#' },
 ];
 
+const adminNavItems: MenuItem[] = [
+    {
+        icon: Shield,
+        title: 'Admin',
+        submenu: [
+            { name: 'Kelola RCSA', href: '/admin/rcsa-management' },
+        ]
+    }
+];
+
 
 const footerNavItems: MenuItem[] = [
   { icon: Settings, title: 'Settings', href: '#' },
@@ -168,7 +179,7 @@ const NavItemWithSubmenu = ({
 
 
   if (!isClient) {
-    // Render a static placeholder on the server
+    // Render a static placeholder on the server to avoid hydration mismatch
     return (
         <SidebarMenuButton className="justify-between w-full" isActive={isAnySubmenuActive}>
             <div className="flex items-center gap-2">
@@ -257,6 +268,14 @@ export function AppSidebar() {
               <SidebarMenuItem key={item.title}>
                 <NavItem item={item} />
               </SidebarMenuItem>
+            ))}
+             <SidebarMenuItem>
+                <hr className="my-2 border-sidebar-border" />
+            </SidebarMenuItem>
+            {adminNavItems.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                    <NavItem item={item} />
+                </SidebarMenuItem>
             ))}
           </SidebarMenu>
         </SidebarContent>
