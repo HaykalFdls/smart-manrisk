@@ -119,7 +119,7 @@ const getLevelBadgeVariant = (level: RiskData['risikoResidual']) => {
 export default function RiskDetailPage() {
   const params = useParams();
   const { toast } = useToast();
-  const division = decodeURIComponent(params.division as string);
+  const division = decodeURIComponent(params.namaDivisi as string);
   const [risks, setRisks] = useState(mockRiskData[division] || []);
   const pageTitle = division.replace(/Divisi|Desk/g, '').trim();
 
