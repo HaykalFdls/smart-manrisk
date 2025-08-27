@@ -21,11 +21,10 @@ import {
 import { Button } from '@/components/ui/button';
 import {
   addRcsaSubmission,
-  getRcsaData,
-  updateRcsaData,
+  getRcsaDraft,
+  updateRcsaDraft,
   type RCSAData,
 } from '@/lib/rcsa-data';
-import { getRcsaMasterData } from '@/lib/rcsa-master-data';
 import { useToast } from '@/hooks/use-toast';
 import { Save, Send } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
@@ -42,6 +41,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Separator } from '@/components/ui/separator';
 import { Label } from '@/components/ui/label';
+import { getRcsaMasterData } from '@/lib/rcsa-master-data';
 
 const jenisRisikoOptions = [
   'Risiko Kredit',
@@ -104,7 +104,7 @@ export default function Rcsapage() {
 
   useEffect(() => {
     // Load current working data from draft, or master data if none exists
-    setData(getRcsaData());
+    setData(getRcsaDraft());
     setIsLoading(false);
   }, []);
 
@@ -154,7 +154,7 @@ export default function Rcsapage() {
   const handleSave = () => {
     setIsSaving(true);
     setTimeout(() => {
-      updateRcsaData(data);
+      updateRcsaDraft(data);
       toast({
         title: 'Sukses!',
         description: 'Data RCSA berhasil disimpan sebagai draf.',
@@ -172,10 +172,7 @@ export default function Rcsapage() {
       variant: 'default',
     });
     // Reset form to master data after submission
-    const masterData = getRcsaMasterData();
-    setData(masterData);
-    // Also update the draft with the clean master data
-    updateRcsaData(masterData);
+    setData(getRcsaMasterData());
   };
 
   if (isLoading) {

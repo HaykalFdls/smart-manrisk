@@ -26,34 +26,33 @@ export type RCSASubmission = {
     data: RCSAData[];
 }
 
-// Key for the user's current, unsubmitted work (draft)
 const RCSA_DRAFT_KEY = 'rcsaDraftStore';
-// Key for all historical submissions viewable by the admin
 const RCSA_SUBMISSIONS_KEY = 'rcsaSubmissionsStore';
 
+// --- Functions for Draft Data (User's current work) ---
+
 // Function to get the current DRAFT data
-export const getRcsaData = (): RCSAData[] => {
+export const getRcsaDraft = (): RCSAData[] => {
   if (typeof window === 'undefined') {
-    return getRcsaMasterData();
+    return []; // Always return empty array on server
   }
   try {
     const item = window.localStorage.getItem(RCSA_DRAFT_KEY);
     if (item) {
       return JSON.parse(item);
-    } else {
-      // If no draft in localStorage, initialize with default master data
-      const masterData = getRcsaMasterData();
-      window.localStorage.setItem(RCSA_DRAFT_KEY, JSON.stringify(masterData));
-      return masterData;
     }
+    // If no draft exists, initialize it with master data
+    const masterData = getRcsaMasterData();
+    window.localStorage.setItem(RCSA_DRAFT_KEY, JSON.stringify(masterData));
+    return masterData;
   } catch (error) {
     console.error("Failed to read draft from localStorage", error);
-    return getRcsaMasterData();
+    return getRcsaMasterData(); // Fallback in case of parsing error on client
   }
 };
 
 // Function to update the DRAFT data
-export const updateRcsaData = (newData: RCSAData[]) => {
+export const updateRcsaDraft = (newData: RCSAData[]) => {
    if (typeof window === 'undefined') {
     return;
   }
@@ -64,8 +63,7 @@ export const updateRcsaData = (newData: RCSAData[]) => {
   }
 };
 
-
-// --- Functions for Submissions ---
+// --- Functions for Submissions (Admin view) ---
 
 // Function to get ALL submissions
 export const getAllRcsaSubmissions = (): RCSASubmission[] => {
@@ -95,7 +93,30 @@ export const addRcsaSubmission = (submissionData: RCSAData[]) => {
         };
         const updatedSubmissions = [...allSubmissions, newSubmission];
         window.localStorage.setItem(RCSA_SUBMISSIONS_KEY, JSON.stringify(updatedSubmissions));
+        
+        // After submitting, we clear the draft by replacing it with a fresh master template
+        const masterData = getRcsaMasterData();
+        updateRcsaDraft(masterData);
     } catch (error) {
         console.error("Failed to add submission to localStorage", error);
     }
-}
+};
+
+// Function to get the FULL master data, used by admin management page.
+export const getRcsaData = (): RCSAData[] => {
+    return getRcsaMasterData();
+};
+
+// Function to update the master data template itself. Used by admin management page.
+export const updateRcsaData = (newData: RCSAData[]) => {
+    // In a real app, this would write to a database.
+    // For this simulation, we'll update the draft store as it's the basis for new sessions.
+    if (typeof window === 'undefined') {
+        return;
+    }
+    try {
+        window.localStorage.setItem(RCSA_DRAFT_KEY, JSON.stringify(newData));
+    } catch (error) {
+        console.error("Failed to update master data in localStorage", error);
+    }
+};
