@@ -1,6 +1,7 @@
 
 'use client';
 
+import { useState } from 'react';
 import {
   Table,
   TableBody,
@@ -21,6 +22,16 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { RiskDetailsModal } from '@/components/risk/risk-details-modal';
+import { AddRiskForm } from '@/components/risk/add-risk-form';
+
 
 type RiskData = {
   id: string;
@@ -90,7 +101,7 @@ const getLevelBadgeVariant = (level: RiskData['risikoResidual']) => {
       return 'secondary';
     case 'Rendah':
     default:
-      return 'default';
+      return 'outline';
   }
 };
 
@@ -100,90 +111,127 @@ export default function RiskDetailPage() {
   const risks = mockRiskData[division] || [];
   const pageTitle = division.replace(/Divisi|Desk/g, '').trim();
 
-  return (
-    <div className="flex flex-1 flex-col p-4 md:p-6 lg:p-8 bg-gray-50/50">
-      <div className="flex items-center justify-between mb-8">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">{pageTitle}</h1>
-          <p className="text-muted-foreground">A list of risks for the {division} division.</p>
-        </div>
-        <div className="flex items-center gap-2">
-            <Button variant="outline" asChild>
-                <Link href="/risk-register">
-                    <ArrowLeft className="mr-2 h-4 w-4" />
-                    Back
-                </Link>
-            </Button>
-            <Button>
-                <FilePlus className="mr-2 h-4 w-4" />
-                Add New Risk
-            </Button>
-        </div>
-      </div>
+  const [isDetailsModalOpen, setDetailsModalOpen] = useState(false);
+  const [isAddModalOpen, setAddModalOpen] = useState(false);
+  const [selectedRisk, setSelectedRisk] = useState<RiskData | null>(null);
 
-      <Card>
-        <CardContent className="p-0">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-[50px]">No.</TableHead>
-                <TableHead>Kategori Risiko/Proses</TableHead>
-                <TableHead>Risk Event/Potensi Risiko</TableHead>
-                <TableHead>Risiko Residual</TableHead>
-                <TableHead>Risk Owner</TableHead>
-                <TableHead>Risk Treatment Plan</TableHead>
-                <TableHead>Fraud</TableHead>
-                <TableHead className="w-[50px]"></TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {risks.length > 0 ? (
-                risks.map((risk, index) => (
-                  <TableRow key={risk.id}>
-                    <TableCell className="font-medium text-center">{index + 1}</TableCell>
-                    <TableCell>{risk.kategori}</TableCell>
-                    <TableCell>{risk.riskEvent}</TableCell>
-                    <TableCell>
-                      <Badge variant={getLevelBadgeVariant(risk.risikoResidual)}>{risk.risikoResidual}</Badge>
-                    </TableCell>
-                    <TableCell>{risk.riskOwner}</TableCell>
-                    <TableCell>{risk.treatmentPlan}</TableCell>
-                    <TableCell>
-                      {risk.isFraud ? (
-                        <CheckCircle2 className="h-5 w-5 text-green-500" />
-                      ) : (
-                        <XCircle className="h-5 w-5 text-red-500" />
-                      )}
-                    </TableCell>
-                    <TableCell>
-                       <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon" className="h-8 w-8">
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem>Edit</DropdownMenuItem>
-                          <DropdownMenuItem>View Details</DropdownMenuItem>
-                          <DropdownMenuItem className="text-red-600">Delete</DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+  const handleViewDetails = (risk: RiskData) => {
+    setSelectedRisk(risk);
+    setDetailsModalOpen(true);
+  };
+
+  return (
+    <>
+      <div className="flex flex-1 flex-col p-4 md:p-6 lg:p-8 bg-gray-50/50">
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight">{pageTitle}</h1>
+            <p className="text-muted-foreground">A list of risks for the {division} division.</p>
+          </div>
+          <div className="flex items-center gap-2">
+              <Button variant="outline" asChild>
+                  <Link href="/risk-register">
+                      <ArrowLeft className="mr-2 h-4 w-4" />
+                      Back
+                  </Link>
+              </Button>
+              <Button onClick={() => setAddModalOpen(true)}>
+                  <FilePlus className="mr-2 h-4 w-4" />
+                  Add New Risk
+              </Button>
+          </div>
+        </div>
+
+        <Card>
+          <CardContent className="p-0">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="w-[50px]">No.</TableHead>
+                  <TableHead>Kategori Risiko/Proses</TableHead>
+                  <TableHead>Risk Event/Potensi Risiko</TableHead>
+                  <TableHead>Risiko Residual</TableHead>
+                  <TableHead>Risk Owner</TableHead>
+                  <TableHead>Risk Treatment Plan</TableHead>
+                  <TableHead>Fraud</TableHead>
+                  <TableHead className="w-[50px]"></TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {risks.length > 0 ? (
+                  risks.map((risk, index) => (
+                    <TableRow key={risk.id}>
+                      <TableCell className="font-medium text-center">{index + 1}</TableCell>
+                      <TableCell>{risk.kategori}</TableCell>
+                      <TableCell>{risk.riskEvent}</TableCell>
+                      <TableCell>
+                        <Badge variant={getLevelBadgeVariant(risk.risikoResidual)}>{risk.risikoResidual}</Badge>
+                      </TableCell>
+                      <TableCell>{risk.riskOwner}</TableCell>
+                      <TableCell>{risk.treatmentPlan}</TableCell>
+                      <TableCell>
+                        {risk.isFraud ? (
+                          <CheckCircle2 className="h-5 w-5 text-green-500" />
+                        ) : (
+                          <XCircle className="h-5 w-5 text-red-500" />
+                        )}
+                      </TableCell>
+                      <TableCell>
+                         <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon" className="h-8 w-8">
+                              <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem>Edit</DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleViewDetails(risk)}>
+                                View Details
+                            </DropdownMenuItem>
+                            <DropdownMenuItem className="text-red-600">Delete</DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={8} className="text-center h-24">
+                      Tidak ada data risiko untuk divisi ini.
                     </TableCell>
                   </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell colSpan={8} className="text-center h-24">
-                    Tidak ada data risiko untuk divisi ini.
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
-    </div>
+                )}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Modals */}
+      <RiskDetailsModal
+        isOpen={isDetailsModalOpen}
+        onClose={() => setDetailsModalOpen(false)}
+        risk={selectedRisk}
+      />
+      <Dialog open={isAddModalOpen} onOpenChange={setAddModalOpen}>
+        <DialogContent className="sm:max-w-3xl">
+          <DialogHeader>
+            <DialogTitle>Add New Risk</DialogTitle>
+            <DialogDescription>
+              Fill out the form below to add a new risk to the {pageTitle} division.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-4">
+            <AddRiskForm
+              division={pageTitle}
+              onSuccess={() => {
+                setAddModalOpen(false);
+                // Here you would typically refetch or update the risks data
+              }}
+            />
+          </div>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
-
-    
