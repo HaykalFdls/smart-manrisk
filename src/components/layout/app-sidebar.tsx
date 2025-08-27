@@ -95,8 +95,7 @@ const mainNavItems: MenuItem[] = [
     icon: ShieldAlert,
     title: 'Operational Risk',
     submenu: [
-      { name: 'Incidents', href: '#' },
-      { name: 'KRI', href: '#' },
+      { name: 'Dashboard & Report', href: '#' },
     ],
   },
   {
@@ -104,7 +103,6 @@ const mainNavItems: MenuItem[] = [
     title: 'IT Risk Management',
     submenu: [
       { name: 'Dashboard & Report', href: '#' },
-      { name: 'IT Risk Profile', href: '#' },
     ],
   },
   {
@@ -112,9 +110,6 @@ const mainNavItems: MenuItem[] = [
     title: 'BCMS',
     submenu: [
       { name: 'Dashboard & Report', href: '#' },
-      { name: 'BIA & Risk Assessment', href: '#' },
-      { name: 'BCP & DRP', href: '#' },
-      { name: 'Test & Maintenance', href: '#' },
     ],
   },
   {
