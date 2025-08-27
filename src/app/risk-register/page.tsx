@@ -1,5 +1,15 @@
+"use client";
 
-'use client';
+import { useState, useEffect } from 'react';
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+
+import { PageHeader } from "@/components/page-header";
+import { Button } from "@/components/ui/button";
+import { fetchRisks, createRisk, updateRisk, deleteRisk } from "@/lib/api";
+import { fetchUsers } from "@/lib/api";
+import axios from "axios";
 
 import {
   Card,
@@ -7,177 +17,443 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-  CardFooter,
-} from '@/components/ui/card';
-import { useRouter } from 'next/navigation';
-import { Cpu, Landmark, Gavel, Users, ClipboardList, ArrowRight, Shield, Building, BarChart, AreaChart, DollarSign, Briefcase, FileText, Scale, Handshake, Search, Lightbulb, UserCheck, FolderGit2, Coins } from 'lucide-react';
-import type { LucideIcon } from 'lucide-react';
+} from "@/components/ui/card";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
+import { PlusCircle, MoreHorizontal, ArrowLeft, CheckCircle, XCircle } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { toast } from '@/hooks/use-toast';
+import { Textarea } from '@/components/ui/textarea';
+import { Switch } from '@/components/ui/switch';
 
-const divisionData: { division: string; total: number; Icon: LucideIcon; description: string }[] = [
-  {
-    division: 'Divisi Audit Internal',
-    total: 120,
-    Icon: Search,
-    description: 'Risiko terkait audit dan pengawasan internal.',
-  },
-  {
-    division: 'Divisi Sumber Daya Insani (SDI)',
-    total: 320,
-    Icon: Users,
-    description: 'Risiko terkait personil, talenta, dan budaya kerja.',
-  },
-  {
-    division: 'Divisi Perencanaan Strategis',
-    total: 85,
-    Icon: Lightbulb,
-    description: 'Risiko terkait perencanaan dan strategi jangka panjang.',
-  },
-  {
-    division: 'Divisi Penyelamatan & Penyelesaian Pembiayaan (P3)',
-    total: 450,
-    Icon: Handshake,
-    description: 'Risiko terkait penyelamatan dan penyelesaian kredit.',
-  },
-  {
-    division: 'Divisi Pembiayaan Konsumer',
-    total: 680,
-    Icon: UserCheck,
-    description: 'Risiko pada produk pembiayaan untuk konsumen.',
-  },
-  {
-    division: 'Divisi Dana Jasa Ritel',
-    total: 550,
-    Icon: Coins,
-    description: 'Risiko terkait pengelolaan dana dan jasa di segmen ritel.',
-  },
-  {
-    division: 'Divisi Dana Korporasi dan Institusi (Insbank)',
-    total: 720,
-    Icon: Landmark,
-    description: 'Risiko terkait pendanaan dari korporasi dan institusi.',
-  },
-  {
-    division: 'Divisi Kepatuhan',
-    total: 280,
-    Icon: Gavel,
-    description: 'Risiko terkait regulasi, hukum, dan kebijakan internal.',
-  },
-  {
-    division: 'Divisi Teknologi Informasi',
-    total: 500,
-    Icon: Cpu,
-    description: 'Risiko terkait infrastruktur, sistem, dan keamanan siber.',
-  },
-  {
-    division: 'Divisi Operasional',
-    total: 970,
-    Icon: ClipboardList,
-    description: 'Risiko terkait proses internal, kegagalan sistem, dan eksternal.',
-  },
-  {
-    division: 'Divisi Pengendalian Keuangan',
-    total: 350,
-    Icon: AreaChart,
-    description: 'Risiko terkait pasar, kredit, dan pelaporan keuangan.',
-  },
-  {
-    division: 'Divisi Risiko Pembiayaan',
-    total: 480,
-    Icon: DollarSign,
-    description: 'Analisis dan mitigasi risiko dari seluruh aktivitas pembiayaan.',
-  },
-  {
-    division: 'Divisi Pembiayaan UMKM, Ritel, & Komersil',
-    total: 820,
-    Icon: Briefcase,
-    description: 'Risiko dari pembiayaan untuk segmen UMKM, ritel, dan komersil.',
-  },
-  {
-    division: 'Divisi Manajemen Risiko',
-    total: 150,
-    Icon: Shield,
-    description: 'Pengelolaan kerangka kerja manajemen risiko secara keseluruhan.',
-  },
-  {
-    division: 'Divisi Bisnis Digital',
-    total: 410,
-    Icon: FolderGit2,
-    description: 'Risiko terkait inovasi dan operasional produk digital.',
-  },
-  {
-    division: 'Desk Sekretariat Perusahaan (Corsec)',
-    total: 95,
-    Icon: Building,
-    description: 'Risiko terkait komunikasi dan administrasi perusahaan.',
-  },
-  {
-    division: 'Desk Pengembangan Produk & Prosedur (Sysdur)',
-    total: 130,
-    Icon: BarChart,
-    description: 'Risiko dalam pengembangan produk dan penyusunan prosedur.',
-  },
-  {
-    division: 'Desk Administrasi Pembiayaan & Bisnis Legal (APBL)',
-    total: 210,
-    Icon: FileText,
-    description: 'Risiko terkait administrasi dan aspek legal pembiayaan.',
-  },
-  {
-    division: 'Desk Legal',
-    total: 180,
-    Icon: Scale,
-    description: 'Risiko hukum yang dihadapi oleh perusahaan.',
-  },
-  {
-    division: 'Desk Treasury',
-    total: 310,
-    Icon: DollarSign,
-    description: 'Risiko terkait pengelolaan likuiditas dan investasi keuangan.',
-  },
-];
+const riskSchema = z.object({
+  'Kategori Risiko/Proses': z.string().min(1, "Kategori Risiko/Proses is required."),
+  'Risk Event/Potensi Risiko': z.string().min(1, "Risk Event/Potensi Risiko is required."),
+  'Risiko Residual': z.string().min(1, "Risiko Residual is required."),
+  'Risk Owner': z.string().min(1, "Risk Owner is required."),
+  'Risk Treatment Plan': z.string().min(1, "Risk Treatment Plan is required."),
+  'Jenis Risiko': z.string().optional(),
+  'Root Cause': z.string().optional(),
+  'Lokasi': z.string().optional(),
+  'Dampak': z.string().optional(),
+  'Deskripsi Risk Treatment Plan': z.string().optional(),
+  'Fraud Indicator': z.boolean().default(false),
+  'Keterangan': z.string().optional(),
+});
+
 
 export default function RiskRegisterPage() {
-  const router = useRouter();
+  const [risks, setRisks] = useState<Risk[]>([]);
+  const [users, setUsers] = useState<User[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const handleDivisionClick = (division: string) => {
-    router.push(`/risk-register/${encodeURIComponent(division)}`);
+  const [selectedDivision, setSelectedDivision] = useState<string | null>(null);
+  
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [editingRisk, setEditingRisk] = useState<Risk | null>(null);
+  const [viewingRisk, setViewingRisk] = useState<Risk | null>(null);
+  const [deletingRisk, setDeletingRisk] = useState<Risk | null>(null);
+
+  const userNameMap = Object.fromEntries(users.map(u => [u.id, u.name]));
+  const userDivisionMap = Object.fromEntries(users.map(u => [u.id, u.division]));
+
+
+useEffect(() => {
+  const loadData = async () => {
+    try {
+      const [risksData, usersData] = await Promise.all([
+        fetchRisks(),
+        fetchUsers()
+      ]);
+      console.log("Users:", usersData);
+      console.log("Risks:", risksData);
+      setRisks(risksData);
+      setUsers(usersData);
+    } catch (err) {
+      toast({ title: "Error", description: "Gagal memuat data", variant: "destructive" });
+    } finally {
+      setLoading(false);
+    }
+  };
+  loadData();
+}, []);
+
+
+  const form = useForm<z.infer<typeof riskSchema>>({
+    resolver: zodResolver(riskSchema),
+    defaultValues: {
+      'Kategori Risiko/Proses': "",
+      'Risk Event/Potensi Risiko': "",
+      'Risiko Residual': "",
+      'Risk Owner': "",
+      'Risk Treatment Plan': "",
+      'Jenis Risiko': "",
+      'Root Cause': "",
+      'Lokasi': "",
+      'Dampak': "",
+      'Deskripsi Risk Treatment Plan': "",
+      'Fraud Indicator': false,
+      'Keterangan': "",
+    },
+  });
+
+  const handleDivisionClick = (divisionName: string) => {
+    setSelectedDivision(divisionName);
   };
 
-  return (
-    <div className="flex flex-1 flex-col p-4 md:p-6 lg:p-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold tracking-tight">Risk Register</h1>
-        <p className="text-muted-foreground">Pilih divisi untuk melihat detail risiko operasional.</p>
-      </div>
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-        {divisionData.map(({ division, total, Icon, description }) => (
-          <Card
-            key={division}
-            className="cursor-pointer transition-all hover:shadow-lg hover:-translate-y-1 flex flex-col"
-            onClick={() => handleDivisionClick(division)}
-          >
-            <CardHeader className="flex flex-row items-start gap-4 space-y-0">
-                <div className="rounded-lg bg-primary p-3 text-primary-foreground">
-                    <Icon className="h-6 w-6" />
-                </div>
-                <div className="flex-1">
-                    <CardTitle className="text-base">{division}</CardTitle>
-                    <CardDescription className="text-xs">{description}</CardDescription>
-                </div>
-            </CardHeader>
-            <CardContent className="flex-grow">
-                <div className="text-4xl font-bold">{total}</div>
-                <p className="text-xs text-muted-foreground">Total Risk Event / Potensi Risiko</p>
+  const handleBackClick = () => {
+    setSelectedDivision(null);
+  };
+
+  const handleAddNewRisk = () => {
+    setEditingRisk(null);
+    form.reset();
+    setIsFormOpen(true);
+  };
+
+  const handleEditRisk = (risk: Risk) => {
+    setEditingRisk(risk);
+    form.reset(risk);
+    setIsFormOpen(true);
+  };
+
+  const handleDeleteRisk = (risk: Risk) => {
+    setDeletingRisk(risk);
+  };
+
+  const confirmDelete = async () => {
+    if (deletingRisk) {
+      try {
+        await deleteRisk(deletingRisk.No);
+        setRisks(risks.filter(r => r.No !== deletingRisk.No));
+        toast({ title: "Risk Deleted", description: "The risk has been successfully deleted.", variant: "destructive" });
+      } catch (err) {
+        toast({ title: "Error", description: String(err), variant: "destructive" });
+      } finally {
+        setDeletingRisk(null);
+      }
+    }
+  };
+
+  
+  const handleViewDetails = (risk: Risk) => {
+    setViewingRisk(risk);
+  };
+
+  async function onSubmit(values: z.infer<typeof riskSchema>) {
+    try {
+      if (editingRisk) {
+        // Update existing risk
+        const updated = await updateRisk(editingRisk.No, values);
+        setRisks(risks.map(r => r.No === editingRisk.No ? updated : r));
+        toast({ title: "Risk Updated", description: "The risk has been successfully updated." });
+      } else {
+        // Add new risk
+        const newRisk = await createRisk({
+          kategori_risiko: values['Kategori Risiko/Proses'],
+          jenis_risiko: values['Jenis Risiko'],
+          skenario_risiko: values['Risk Event/Potensi Risiko'],
+          root_cause: values['Root Cause'],
+          dampak: values['Dampak'],
+          risiko_residual: values['Risiko Residual'],
+          pemilik_risiko: parseInt(values['Risk Owner']),
+          rencana_penanganan: values['Risk Treatment Plan'],
+          deskripsi_rencana_penanganan: values['Deskripsi Risk Treatment Plan'],
+          fraud_indicator: values['Fraud Indicator'],
+          keterangan: values['Keterangan'],
+          divisi: selectedDivision,
+        });
+
+        setRisks([...risks, newRisk]);
+        toast({ title: "Risk Added", description: "The new risk has been successfully added." });
+      }
+      console.log("Payload:", {kategori_risiko: values['Kategori Risiko/Proses'],});
+
+      setIsFormOpen(false);
+      setEditingRisk(null);
+      form.reset();
+    } catch (err) {
+      toast({ title: "Error", description: String(err), variant: "destructive" });
+    }
+  }
+
+
+
+console.log("userNameMap:", userNameMap);
+console.log("userDivisionMap:", userDivisionMap);
+console.log("Risks:", risks);
+console.log("Users:", users);
+
+
+  const filteredRisks = selectedDivision
+    ? risks.filter(risk => {
+        const ownerDivisi = userDivisionMap[risk.pemilik_risiko];
+        return ownerDivisi === selectedDivision;
+      }) : [];
+
+  
+  const divisionTotals = users
+  .map(user => {
+    const totalRisk = risks.filter(r => r.pemilik_risiko === user.id).length;
+    return { name: user.division, total: totalRisk };
+  })
+  .filter(div => div.total > 0);  
+console.log("divisionTotals:", divisionTotals);
+
+  if (!selectedDivision) {
+    return (
+      <>
+        <PageHeader
+            title="Operational Risk Register"
+            description="Total Risk Event / Potensi Risiko per Divisi">
+        </PageHeader>
+        <Card>
+            <CardContent className="p-0">
+                <Table>
+                    <TableHeader>
+                    <TableRow>
+                        <TableHead>Divisi</TableHead>
+                        <TableHead className="text-right">Total RE/PR</TableHead>
+                    </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                    {divisionTotals.map((division) => (
+                        <TableRow key={division.name} onClick={() => handleDivisionClick(division.name)} className="cursor-pointer">
+                        <TableCell className="font-medium">{division.name}</TableCell>
+                        <TableCell className="text-right">{division.total}</TableCell>
+                        </TableRow>
+                    ))}
+                    </TableBody>
+                </Table>
             </CardContent>
-            <CardFooter className="flex items-center justify-end text-sm font-medium text-primary hover:underline mt-auto">
-                <span>Lihat Detail</span>
-                <ArrowRight className="ml-2 h-4 w-4" />
-            </CardFooter>
-          </Card>
-        ))}
-      </div>
-    </div>
+        </Card>
+      </>
+    );
+  }
+
+  return (
+    <>
+        <PageHeader title={selectedDivision} description={`A list of risks for the ${selectedDivision} division.`}>
+        <Button variant="outline" onClick={handleBackClick}>
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Back
+        </Button>
+        <Button onClick={handleAddNewRisk}>
+            <PlusCircle className="mr-2 h-4 w-4" />
+            Add New Risk
+        </Button>
+        </PageHeader>
+        <Card>
+        <CardContent className="p-6">
+            <Table>
+            <TableHeader>
+                <TableRow>
+                <TableHead>No.</TableHead>
+                <TableHead>Kategori Risiko</TableHead>
+                <TableHead>Jenis Resiko</TableHead>
+                <TableHead>Risiko Residual</TableHead>
+                <TableHead>Pemilik Risiko</TableHead>
+                <TableHead>Rencana Penanganan Risiko</TableHead>
+                <TableHead>Fraud</TableHead>
+                <TableHead>
+                    <span className="sr-only">Actions</span>
+                </TableHead>
+                </TableRow>
+            </TableHeader>
+            <TableBody>
+                {filteredRisks.map((risk) => (
+                <TableRow key={risk.No}>
+                    <TableCell className="font-medium">{risk.id}</TableCell>
+                    <TableCell>{risk.kategori_risiko}</TableCell>
+                    <TableCell>{risk.jenis_risiko}</TableCell>
+                    <TableCell>
+                      <Badge
+                          variant={
+                          risk.risiko_residual === 'Tinggi' || risk.risiko_residual === 'Sangat Tinggi'
+                              ? 'destructive'
+                              : risk.risiko_residual === 'Menengah' ? 'warning' : 'success'
+                          }
+                          className="capitalize">
+                          {risk.risiko_residual}
+                      </Badge>
+                    </TableCell>
+<TableCell>
+  <div className="flex flex-col">
+    <span className="font-medium">{risk.pemilik_nama}</span>
+    <Badge variant="outline" className="w-fit mt-1">
+      {risk.jabatan}
+    </Badge>
+  </div>
+</TableCell>
+
+
+                    <TableCell>{risk.rencana_penanganan}</TableCell>
+                    <TableCell>
+                    {risk['Fraud Indicator'] ? <CheckCircle className="h-5 w-5 text-success" /> : <XCircle className="h-5 w-5 text-destructive" />}
+                    </TableCell>
+                    <TableCell>
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                        <Button aria-haspopup="true" size="icon" variant="ghost">
+                            <MoreHorizontal className="h-4 w-4" />
+                            <span className="sr-only">Toggle menu</span>
+                        </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                        <DropdownMenuItem onClick={() => handleViewDetails(risk)}>View Details</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleEditRisk(risk)}>Edit</DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                        <DropdownMenuItem onClick={() => handleDeleteRisk(risk)} className="text-destructive">Delete</DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                    </TableCell>
+                </TableRow>
+                ))}
+            </TableBody>
+            </Table>
+        </CardContent>
+        </Card>
+
+      {/* Add/Edit Risk Dialog */}
+      <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
+        <DialogContent className="sm:max-w-3xl h-[90vh] flex flex-col">
+          <DialogHeader>
+            <DialogTitle>{editingRisk ? 'Edit Risk' : 'Add New Risk'}</DialogTitle>
+            <DialogDescription>
+              {editingRisk ? 'Update the details for the existing risk.' : `Fill in the details for the new risk in the ${selectedDivision} division.`}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex-grow overflow-y-auto pr-6">
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                <FormField control={form.control} name="Kategori Risiko/Proses" render={({ field }) => (<FormItem><FormLabel>Kategori Risiko/Proses</FormLabel><FormControl><Input placeholder="e.g., Pengelolaan sistem bank" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                <FormField control={form.control} name="Risk Event/Potensi Risiko" render={({ field }) => (<FormItem><FormLabel>Risk Event/Potensi Risiko</FormLabel><FormControl><Textarea placeholder="e.g., Serangan siber pada sistem bank" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                <FormField control={form.control} name="Risiko Residual" render={({ field }) => (<FormItem><FormLabel>Risiko Residual</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Select one" /></SelectTrigger></FormControl><SelectContent><SelectItem value="Rendah">Rendah</SelectItem><SelectItem value="Menengah">Menengah</SelectItem><SelectItem value="Tinggi">Tinggi</SelectItem><SelectItem value="Sangat Tinggi">Sangat Tinggi</SelectItem></SelectContent></Select><FormMessage /></FormItem>)} />
+                <FormField control={form.control} name="Risk Owner" render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Risk Owner</FormLabel>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Pilih Pemilik Risiko" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {users.map(user => (
+                        <SelectItem key={user.id} value={String(user.id)}>
+                          {user.name} - {user.division}</SelectItem>))}</SelectContent></Select><FormMessage /></FormItem>)}/>
+
+                <FormField control={form.control} name="Risk Treatment Plan" render={({ field }) => (<FormItem><FormLabel>Risk Treatment Plan</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Select one" /></SelectTrigger></FormControl><SelectContent><SelectItem value="Mitigate">Mitigate</SelectItem><SelectItem value="Accept">Accept</SelectItem><SelectItem value="Transfer">Transfer</SelectItem><SelectItem value="Avoid">Avoid</SelectItem></SelectContent></Select><FormMessage /></FormItem>)} />
+                <FormField control={form.control} name="Jenis Risiko" render={({ field }) => (<FormItem><FormLabel>Jenis Risiko</FormLabel><FormControl><Input placeholder="e.g., Risiko teknologi informasi" {...field} /></FormControl><FormMessage /></FormItem>)}/>
+                <FormField control={form.control} name="Root Cause" render={({ field }) => (<FormItem><FormLabel>Root Cause</FormLabel><FormControl><Textarea placeholder="e.g., Kurangnya proteksi" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                <FormField control={form.control} name="Lokasi" render={({ field }) => (<FormItem><FormLabel>Lokasi</FormLabel><FormControl><Input placeholder="e.g., Kantor Pusat" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                <FormField control={form.control} name="Dampak" render={({ field }) => (<FormItem><FormLabel>Dampak</FormLabel><FormControl><Textarea placeholder="e.g., Gangguan operasional" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                <FormField control={form.control} name="Deskripsi Risk Treatment Plan" render={({ field }) => (<FormItem><FormLabel>Deskripsi Risk Treatment Plan</FormLabel><FormControl><Textarea placeholder="e.g., Meningkatkan firewall" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                <FormField control={form.control} name="Keterangan" render={({ field }) => (<FormItem><FormLabel>Keterangan</FormLabel><FormControl><Textarea placeholder="e.g., Risiko ini membutuhkan perhatian khusus" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                <FormField control={form.control} name="Fraud Indicator" render={({ field }) => (<FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm"><div className="space-y-0.5"><FormLabel>Fraud Indicator</FormLabel></div><FormControl><Switch checked={field.value} onCheckedChange={field.onChange} /></FormControl></FormItem>)} />
+
+                <DialogFooter className="sticky bottom-0 bg-background pt-4 -mr-6 px-6 pb-4 border-t">
+                  <Button type="button" variant="secondary" onClick={() => setIsFormOpen(false)}>Cancel</Button>
+                  <Button type="submit">{editingRisk ? 'Save Changes' : 'Add Risk'}</Button>
+                </DialogFooter>
+              </form>
+            </Form>
+          </div>
+        </DialogContent>
+      </Dialog>
+      
+       {/* View Details Dialog */}
+      <Dialog open={!!viewingRisk} onOpenChange={(open) => !open && setViewingRisk(null)}>
+        <DialogContent className="sm:max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Risk Details</DialogTitle>
+            <DialogDescription>
+              Viewing details for risk no. {viewingRisk?.No}.
+            </DialogDescription>
+          </DialogHeader>
+          {viewingRisk && (
+            <div className="space-y-4 text-sm max-h-[70vh] overflow-y-auto pr-6">
+                {Object.entries(viewingRisk).map(([key, value]) => (
+                  <div key={key} className="grid grid-cols-3 gap-2 border-b pb-2">
+                    <span className="font-semibold text-muted-foreground">{key}</span>
+                    <span className="col-span-2">
+                      {typeof value === 'boolean' ? (value ? 'Yes' : 'No') : value}
+                      </span>
+                  </div>
+                ))}
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setViewingRisk(null)}>Close</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={!!deletingRisk} onOpenChange={(open) => !open && setDeletingRisk(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete the risk
+              from the register.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setDeletingRisk(null)}>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDelete} className="bg-destructive hover:bg-destructive/90">Delete</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   );
 }
-
-    
