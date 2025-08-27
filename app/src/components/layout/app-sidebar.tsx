@@ -31,6 +31,7 @@ import {
   ChevronDown,
   Settings,
   LogOut,
+  SlidersHorizontal,
   type LucideIcon,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -50,7 +51,7 @@ type MenuItem = {
 };
 
 const mainNavItems: MenuItem[] = [
-  { icon: LayoutDashboard, title: 'Dashboard', href: '/' },
+  { icon: LayoutDashboard, title: 'Dashboard', href: '/dashboard' },
   {
     icon: GitMerge,
     title: 'Risk Integration',
@@ -137,8 +138,13 @@ const mainNavItems: MenuItem[] = [
   { icon: Gavel, title: 'Governance & Compliance', href: '#' },
 ];
 
+const adminNavItems: MenuItem[] = [
+    { icon: SlidersHorizontal, title: 'Manage RCSA', href: '/admin/rcsa' },
+];
+
 const footerNavItems: MenuItem[] = [
   { icon: Settings, title: 'Settings', href: '#' },
+  { icon: LogOut, title: 'Logout', href: '#' },
 ];
 
 const NavItemWithSubmenu = ({
@@ -227,6 +233,15 @@ export function AppSidebar() {
         <SidebarContent>
           <SidebarMenu>
             {mainNavItems.map((item) => (
+              <SidebarMenuItem key={item.title}>
+                <NavItem item={item} />
+              </SidebarMenuItem>
+            ))}
+             <SidebarMenuItem>
+                <hr className="my-2 border-sidebar-border" />
+                <span className="px-4 text-xs text-sidebar-foreground/50">Admin</span>
+            </SidebarMenuItem>
+            {adminNavItems.map((item) => (
               <SidebarMenuItem key={item.title}>
                 <NavItem item={item} />
               </SidebarMenuItem>
