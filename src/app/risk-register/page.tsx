@@ -50,9 +50,7 @@ export default function RiskRegisterPage() {
   const router = useRouter();
 
   const handleDivisionClick = (division: string) => {
-    // Later, this can navigate to a detailed page, e.g.:
-    // router.push(`/risk-register/${encodeURIComponent(division)}`);
-    alert(`Menampilkan detail untuk divisi: ${division}`);
+    router.push(`/risk-register/${encodeURIComponent(division)}`);
   };
 
   return (
