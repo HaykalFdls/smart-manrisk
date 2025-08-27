@@ -21,6 +21,7 @@ import {
 } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { getRcsaData, updateRcsaData, type RCSAData } from '@/lib/rcsa-data';
+import { getRcsaMasterData } from '@/lib/rcsa-master-data';
 import { useToast } from '@/hooks/use-toast';
 import { Save, Send } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
@@ -127,6 +128,8 @@ export default function Rcsapage() {
         description: 'Data RCSA Anda telah berhasil dikirim untuk ditinjau oleh admin.',
         variant: 'default',
      });
+     // Reset form to master data after submission
+     setData(getRcsaMasterData());
   };
 
   if (isLoading) {

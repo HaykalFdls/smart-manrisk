@@ -1,6 +1,8 @@
 
 'use client';
 
+import { getRcsaMasterData } from './rcsa-master-data';
+
 export type RCSAData = {
   no: number;
   unitKerja: string;
@@ -36,108 +38,26 @@ export type RCSAData = {
   levelResidual?: string | null;
 };
 
-const initialData: RCSAData[] = [
-  {
-    no: 1,
-    unitKerja: 'Teller',
-    potensiRisiko: 'Terdapat selisih KAS Teller',
-    jenisRisiko: 'Risiko Operasional',
-    penyebabRisiko: 'Human error',
-    dampakInheren: 4,
-    frekuensiInheren: 1,
-    pengendalian: 'Rekonsiliasi kas harian',
-    dampakResidual: 2,
-    kemungkinanResidual: 1,
-    penilaianKontrol: 'Efektif',
-    actionPlan: 'Tingkatkan frekuensi supervisi',
-    pic: 'Kepala Teller',
-    keterangan: '',
-  },
-  {
-    no: 2,
-    unitKerja: 'Teller',
-    potensiRisiko: 'Terdapat pengisian slip oleh nasabah yang tidak dilakukan dengan benar (tidak lengkap, salah alamat, tidak diverifikasi)',
-    jenisRisiko: 'Risiko Operasional',
-    penyebabRisiko: 'Kurangnya pemahaman nasabah',
-    dampakInheren: 3,
-    frekuensiInheren: 2,
-    pengendalian: 'Verifikasi ulang oleh teller',
-    dampakResidual: 2,
-    kemungkinanResidual: 2,
-    penilaianKontrol: 'Tidak Efektif',
-    actionPlan: 'Edukasi nasabah melalui poster',
-    pic: 'Kepala Cabang',
-    keterangan: '',
-  },
-  {
-    no: 3,
-    unitKerja: 'Operasional',
-    potensiRisiko: 'Terjadi kelebihan pembayaran yang pada nasabah yang menarik uang cash pada teller',
-    jenisRisiko: null,
-    penyebabRisiko: null,
-    dampakInheren: null,
-    frekuensiInheren: null,
-    pengendalian: null,
-    dampakResidual: null,
-    kemungkinanResidual: null,
-    penilaianKontrol: 'Cukup Efektif',
-    actionPlan: null,
-    pic: null,
-    keterangan: null,
-  },
-  {
-    no: 4,
-    unitKerja: 'Layanan Nasabah',
-    potensiRisiko: 'Terdapat pemalsuan tandatangan dari nasabah terhadap slip dll',
-    jenisRisiko: null,
-    penyebabRisiko: null,
-    dampakInheren: null,
-    frekuensiInheren: null,
-    pengendalian: null,
-    dampakResidual: null,
-    kemungkinanResidual: null,
-    penilaianKontrol: '#N/A',
-    actionPlan: null,
-    pic: null,
-    keterangan: null,
-  },
-  {
-    no: 5,
-    unitKerja: 'ATM',
-    potensiRisiko: 'Terdapat selisih antara uang pada Mesin ATM dengan catatan buku besar kas ATM',
-    jenisRisiko: null,
-    penyebabRisiko: null,
-    dampakInheren: null,
-    frekuensiInheren: null,
-    pengendalian: null,
-    dampakResidual: null,
-    kemungkinanResidual: null,
-    penilaianKontrol: '#N/A',
-    actionPlan: null,
-    pic: null,
-    keterangan: null,
-  },
-];
-
 const RCSA_DATA_KEY = 'rcsaDataStore';
 
 // Function to get the current data
 export const getRcsaData = (): RCSAData[] => {
   if (typeof window === 'undefined') {
-    return initialData;
+    return getRcsaMasterData();
   }
   try {
     const item = window.localStorage.getItem(RCSA_DATA_KEY);
     if (item) {
       return JSON.parse(item);
     } else {
-      // If no data in localStorage, initialize with default data
-      window.localStorage.setItem(RCSA_DATA_KEY, JSON.stringify(initialData));
-      return initialData;
+      // If no data in localStorage, initialize with default master data
+      const masterData = getRcsaMasterData();
+      window.localStorage.setItem(RCSA_DATA_KEY, JSON.stringify(masterData));
+      return masterData;
     }
   } catch (error) {
     console.error("Failed to read from localStorage", error);
-    return initialData;
+    return getRcsaMasterData();
   }
 };
 
@@ -147,6 +67,7 @@ export const updateRcsaData = (newData: RCSAData[]) => {
     return;
   }
   try {
+     // We remove the calculated fields before storing, as they are recalculated on load.
      const dataToStore = newData.map(({ besaranInheren, levelInheren, besaranResidual, levelResidual, ...rest }) => rest);
      window.localStorage.setItem(RCSA_DATA_KEY, JSON.stringify(dataToStore));
   } catch (error) {
