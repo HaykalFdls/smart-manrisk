@@ -16,15 +16,19 @@ import { getRcsaData, updateRcsaData, type RCSAData } from '@/lib/rcsa-data';
 import { useToast } from '@/hooks/use-toast';
 import { PlusCircle, Save, Trash2 } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
+import { Input } from '@/components/ui/input';
 
 export default function RcsaManagementPage() {
   const { toast } = useToast();
-  const [data, setData] = useState<RCSAData[]>(getRcsaData());
+  // We only manage a subset of fields here
+  const [data, setData] = useState<Pick<RCSAData, 'no' | 'unitKerja' | 'potensiRisiko' | 'keterangan'>[]>(
+    getRcsaData().map(({ no, unitKerja, potensiRisiko, keterangan }) => ({ no, unitKerja, potensiRisiko, keterangan }))
+  );
   const [isSaving, setIsSaving] = useState(false);
 
   const handleInputChange = (
     index: number,
-    field: keyof RCSAData,
+    field: keyof Pick<RCSAData, 'unitKerja' | 'potensiRisiko' | 'keterangan'>,
     value: string
   ) => {
     const newData = [...data];
@@ -34,21 +38,10 @@ export default function RcsaManagementPage() {
   };
   
   const handleAddNew = () => {
-    const newRisk: RCSAData = {
+    const newRisk = {
         no: data.length > 0 ? Math.max(...data.map(d => d.no)) + 1 : 1,
+        unitKerja: '',
         potensiRisiko: '',
-        jenisRisiko: null,
-        penyebabRisiko: null,
-        dampakInheren: null,
-        frekuensiInheren: null,
-        besaranInheren: null,
-        levelInheren: null,
-        pengendalian: null,
-        dampakResidual: null,
-        kemungkinanResidual: null,
-        penilaianKontrol: null,
-        actionPlan: null,
-        pic: null,
         keterangan: '',
     };
     setData([...data, newRisk]);
@@ -59,15 +52,25 @@ export default function RcsaManagementPage() {
     setData(newData);
   };
 
-
   const handleSave = () => {
     setIsSaving(true);
-    // In a real app, this would be an API call
     setTimeout(() => {
-      // Re-number before saving to ensure sequence is correct after deletes
-      const finalData = data.map((row, index) => ({ ...row, no: index + 1 }));
+      const existingData = getRcsaData();
+      
+      const finalData = data.map((adminRow, index) => {
+          const existingRow = existingData.find(d => d.no === adminRow.no) || {};
+          return {
+              ...existingRow,
+              ...adminRow,
+              no: index + 1, // Re-number to keep sequence
+          };
+      }) as RCSAData[];
+
+
       updateRcsaData(finalData);
-      setData(finalData); // Update state with re-numbered data
+      // Update local state with re-numbered data to stay in sync
+      setData(finalData.map(({ no, unitKerja, potensiRisiko, keterangan }) => ({ no, unitKerja, potensiRisiko, keterangan })));
+
       toast({
         title: 'Sukses!',
         description: 'Data master RCSA berhasil diperbarui.',
@@ -84,7 +87,7 @@ export default function RcsaManagementPage() {
             Kelola Master RCSA
           </h1>
           <p className="text-muted-foreground">
-            Tambah, ubah, atau hapus pertanyaan potensi risiko yang akan diisi oleh unit operasional.
+            Tambah, ubah, atau hapus data master yang akan diisi oleh unit operasional.
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -106,10 +109,11 @@ export default function RcsaManagementPage() {
               <TableHeader>
                 <TableRow>
                   <TableHead className="w-[50px] text-center">No.</TableHead>
+                  <TableHead className="min-w-[200px]">Unit Kerja</TableHead>
                   <TableHead className="min-w-[400px]">
                     Potensi Risiko (Pertanyaan untuk User)
                   </TableHead>
-                   <TableHead>Keterangan (Opsional)</TableHead>
+                   <TableHead className="min-w-[300px]">Keterangan (Opsional)</TableHead>
                    <TableHead className="w-[50px]"></TableHead>
                 </TableRow>
               </TableHeader>
@@ -117,6 +121,14 @@ export default function RcsaManagementPage() {
                 {data.map((row, index) => (
                   <TableRow key={row.no}>
                     <TableCell className="text-center">{index + 1}</TableCell>
+                     <TableCell>
+                      <Input
+                        value={row.unitKerja || ''}
+                        onChange={(e) =>
+                          handleInputChange(index, 'unitKerja', e.target.value)
+                        }
+                      />
+                    </TableCell>
                     <TableCell>
                       <Textarea
                         value={row.potensiRisiko}
