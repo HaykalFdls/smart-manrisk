@@ -25,25 +25,51 @@ type RiskData = {
 };
 
 const mockRiskData: { [key: string]: RiskData[] } = {
-  'Teknologi Informasi': [
-    { id: 'IT-001', riskEvent: 'Kegagalan server database utama', category: 'Infrastruktur', level: 'High', status: 'Open' },
-    { id: 'IT-002', riskEvent: 'Serangan DDoS pada aplikasi web', category: 'Keamanan Siber', level: 'Critical', status: 'In Progress' },
-    { id: 'IT-003', riskEvent: 'Data backup tidak lengkap', category: 'Operasional TI', level: 'Medium', status: 'Closed' },
-  ],
-  'Pengendalian Keuangan': [
-     { id: 'FIN-001', riskEvent: 'Kesalahan perhitungan laporan kuartalan', category: 'Pelaporan', level: 'Medium', status: 'Open' },
-     { id: 'FIN-002', riskEvent: 'Peningkatan kredit macet di sektor retail', category: 'Kredit', level: 'High', status: 'In Progress' },
-  ],
-  'Kepatuhan': [
+    'Divisi Audit Internal': [
+        { id: 'AI-001', riskEvent: 'Temuan audit berulang tidak ditindaklanjuti', category: 'Internal Control', level: 'High', status: 'Open' },
+        { id: 'AI-002', riskEvent: 'Keterbatasan sumber daya untuk audit menyeluruh', category: 'Operational', level: 'Medium', status: 'In Progress' },
+    ],
+    'Divisi Sumber Daya Insani (SDI)': [
+        { id: 'HR-001', riskEvent: 'Tingkat turnover karyawan tinggi', category: 'Talenta', level: 'Medium', status: 'Open' },
+    ],
+    'Divisi Perencanaan Strategis': [
+         { id: 'PS-001', riskEvent: 'Strategi bisnis tidak sejalan dengan perkembangan pasar', category: 'Strategic', level: 'High', status: 'Open' },
+    ],
+    'Divisi Penyelamatan & Penyelesaian Pembiayaan (P3)': [
+        { id: 'P3-001', riskEvent: 'Proses restrukturisasi pembiayaan macet tidak efektif', category: 'Credit', level: 'Critical', status: 'In Progress' },
+    ],
+    'Divisi Pembiayaan Konsumer': [
+        { id: 'CON-001', riskEvent: 'Peningkatan NPL pada produk KPR', category: 'Credit', level: 'High', status: 'Open' },
+    ],
+    'Divisi Dana Jasa Ritel': [],
+    'Divisi Dana Korporasi dan Institusi (Insbank)': [],
+    'Divisi Kepatuhan': [
       { id: 'COM-001', riskEvent: 'Keterlambatan pelaporan ke regulator', category: 'Regulasi', level: 'Low', status: 'Closed' },
-  ],
-  'Sumber Daya Insani': [
-      { id: 'HR-001', riskEvent: 'Tingkat turnover karyawan tinggi', category: 'Talenta', level: 'Medium', status: 'Open' },
-  ],
-  'Operasional': [
-      { id: 'OPS-001', riskEvent: 'Gangguan pada sistem antrian teller', category: 'Proses Internal', level: 'Medium', status: 'In Progress' },
-      { id: 'OPS-002', riskEvent: 'Pemadaman listrik di kantor cabang utama', category: 'Eksternal', level: 'High', status: 'Open' },
-  ],
+    ],
+    'Divisi Teknologi Informasi': [
+        { id: 'IT-001', riskEvent: 'Kegagalan server database utama', category: 'Infrastruktur', level: 'High', status: 'Open' },
+        { id: 'IT-002', riskEvent: 'Serangan DDoS pada aplikasi web', category: 'Keamanan Siber', level: 'Critical', status: 'In Progress' },
+        { id: 'IT-003', riskEvent: 'Data backup tidak lengkap', category: 'Operasional TI', level: 'Medium', status: 'Closed' },
+    ],
+    'Divisi Operasional': [
+        { id: 'OPS-001', riskEvent: 'Gangguan pada sistem antrian teller', category: 'Proses Internal', level: 'Medium', status: 'In Progress' },
+        { id: 'OPS-002', riskEvent: 'Pemadaman listrik di kantor cabang utama', category: 'Eksternal', level: 'High', status: 'Open' },
+    ],
+    'Divisi Pengendalian Keuangan': [
+        { id: 'FIN-001', riskEvent: 'Kesalahan perhitungan laporan kuartalan', category: 'Pelaporan', level: 'Medium', status: 'Open' },
+        { id: 'FIN-002', riskEvent: 'Peningkatan kredit macet di sektor retail', category: 'Kredit', level: 'High', status: 'In Progress' },
+    ],
+    'Divisi Risiko Pembiayaan': [],
+    'Divisi Pembiayaan UMKM, Ritel, & Komersil': [],
+    'Divisi Manajemen Risiko': [],
+    'Divisi Bisnis Digital': [
+        { id: 'DIG-001', riskEvent: 'Kegagalan implementasi platform digital banking baru', category: 'Project', level: 'High', status: 'In Progress' },
+    ],
+    'Desk Sekretariat Perusahaan (Corsec)': [],
+    'Desk Pengembangan Produk & Prosedur (Sysdur)': [],
+    'Desk Administrasi Pembiayaan & Bisnis Legal (APBL)': [],
+    'Desk Legal': [],
+    'Desk Treasury': [],
 };
 
 const getLevelBadgeVariant = (level: RiskData['level']) => {
