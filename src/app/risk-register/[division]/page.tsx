@@ -29,6 +29,17 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import { useToast } from '@/hooks/use-toast';
 import { RiskDetailsModal } from '@/components/risk/risk-details-modal';
 import { AddRiskForm } from '@/components/risk/add-risk-form';
 
@@ -107,17 +118,46 @@ const getLevelBadgeVariant = (level: RiskData['risikoResidual']) => {
 
 export default function RiskDetailPage() {
   const params = useParams();
+  const { toast } = useToast();
   const division = decodeURIComponent(params.division as string);
-  const risks = mockRiskData[division] || [];
+  const [risks, setRisks] = useState(mockRiskData[division] || []);
   const pageTitle = division.replace(/Divisi|Desk/g, '').trim();
 
   const [isDetailsModalOpen, setDetailsModalOpen] = useState(false);
-  const [isAddModalOpen, setAddModalOpen] = useState(false);
+  const [isFormModalOpen, setFormModalOpen] = useState(false);
+  const [isDeleteAlertOpen, setDeleteAlertOpen] = useState(false);
   const [selectedRisk, setSelectedRisk] = useState<RiskData | null>(null);
+  const [editingRisk, setEditingRisk] = useState<RiskData | null>(null);
 
   const handleViewDetails = (risk: RiskData) => {
     setSelectedRisk(risk);
     setDetailsModalOpen(true);
+  };
+
+  const handleAddNewRisk = () => {
+    setEditingRisk(null);
+    setFormModalOpen(true);
+  };
+
+  const handleEdit = (risk: RiskData) => {
+    setEditingRisk(risk);
+    setFormModalOpen(true);
+  };
+
+  const handleDelete = (risk: RiskData) => {
+    setSelectedRisk(risk);
+    setDeleteAlertOpen(true);
+  };
+
+  const confirmDelete = () => {
+    if (!selectedRisk) return;
+    setRisks(risks.filter(r => r.id !== selectedRisk.id));
+    setDeleteAlertOpen(false);
+    setSelectedRisk(null);
+    toast({
+        title: 'Sukses!',
+        description: 'Data risiko berhasil dihapus.',
+    });
   };
 
   return (
@@ -135,7 +175,7 @@ export default function RiskDetailPage() {
                       Back
                   </Link>
               </Button>
-              <Button onClick={() => setAddModalOpen(true)}>
+              <Button onClick={handleAddNewRisk}>
                   <FilePlus className="mr-2 h-4 w-4" />
                   Add New Risk
               </Button>
@@ -184,11 +224,15 @@ export default function RiskDetailPage() {
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
-                            <DropdownMenuItem>Edit</DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleEdit(risk)}>
+                                Edit
+                            </DropdownMenuItem>
                             <DropdownMenuItem onClick={() => handleViewDetails(risk)}>
                                 View Details
                             </DropdownMenuItem>
-                            <DropdownMenuItem className="text-red-600">Delete</DropdownMenuItem>
+                            <DropdownMenuItem className="text-red-600" onClick={() => handleDelete(risk)}>
+                                Delete
+                            </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
                       </TableCell>
@@ -213,25 +257,43 @@ export default function RiskDetailPage() {
         onClose={() => setDetailsModalOpen(false)}
         risk={selectedRisk}
       />
-      <Dialog open={isAddModalOpen} onOpenChange={setAddModalOpen}>
+      <Dialog open={isFormModalOpen} onOpenChange={setFormModalOpen}>
         <DialogContent className="sm:max-w-3xl">
           <DialogHeader>
-            <DialogTitle>Add New Risk</DialogTitle>
+            <DialogTitle>{editingRisk ? 'Edit Risk' : 'Add New Risk'}</DialogTitle>
             <DialogDescription>
-              Fill out the form below to add a new risk to the {pageTitle} division.
+             {editingRisk ? `Editing risk data for ${editingRisk.id}` : `Fill out the form below to add a new risk to the ${pageTitle} division.`}
             </DialogDescription>
           </DialogHeader>
           <div className="py-4">
             <AddRiskForm
               division={pageTitle}
+              existingData={editingRisk}
               onSuccess={() => {
-                setAddModalOpen(false);
+                setFormModalOpen(false);
+                setEditingRisk(null);
                 // Here you would typically refetch or update the risks data
               }}
             />
           </div>
         </DialogContent>
       </Dialog>
+      
+      <AlertDialog open={isDeleteAlertOpen} onOpenChange={setDeleteAlertOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete the risk
+              record for "{selectedRisk?.riskEvent}".
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDelete}>Continue</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 }

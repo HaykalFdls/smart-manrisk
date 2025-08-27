@@ -4,6 +4,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
+import { useEffect } from 'react';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -60,12 +61,24 @@ const formSchema = z.object({
 
 type AddRiskFormValues = z.infer<typeof formSchema>;
 
+type RiskData = {
+  id: string;
+  kategori: string;
+  riskEvent: string;
+  risikoResidual: 'Rendah' | 'Menengah' | 'Tinggi' | 'Kritis';
+  riskOwner: string;
+  treatmentPlan: string;
+  isFraud: boolean;
+};
+
 export function AddRiskForm({
   onSuccess,
   division,
+  existingData,
 }: {
   onSuccess: () => void;
   division: string;
+  existingData?: RiskData | null;
 }) {
   const { toast } = useToast();
   const form = useForm<AddRiskFormValues>({
@@ -87,7 +100,7 @@ export function AddRiskForm({
       tingkatKemungkinan: 'Jarang',
       risikoResidual: 'Rendah',
       batasKriteria: 'Rendah',
-      riskOwner: `Kantor Pusat - ${division}`,
+      riskOwner: `Kantor Pusat - Divisi ${division}`,
       processOwner: '',
       productOwner: '',
       treatmentPlan: '',
@@ -97,11 +110,25 @@ export function AddRiskForm({
     },
   });
 
+  useEffect(() => {
+    if (existingData) {
+      form.reset({
+        ...form.getValues(), // keep defaults for fields not in existingData
+        kategori: existingData.kategori,
+        riskEvent: existingData.riskEvent,
+        risikoResidual: existingData.risikoResidual,
+        riskOwner: existingData.riskOwner,
+        treatmentPlan: existingData.treatmentPlan,
+        isFraud: existingData.isFraud ? 'Ya' : 'Tidak',
+      });
+    }
+  }, [existingData, form]);
+
   function onSubmit(values: AddRiskFormValues) {
     console.log(values);
     toast({
       title: 'Sukses!',
-      description: 'Data risiko baru berhasil ditambahkan.',
+      description: `Data risiko berhasil ${existingData ? 'diperbarui' : 'ditambahkan'}.`,
     });
     onSuccess();
   }
@@ -145,7 +172,7 @@ export function AddRiskForm({
       render={({ field }) => (
         <FormItem>
           <FormLabel>{label}</FormLabel>
-          <Select onValueChange={field.onChange} defaultValue={field.value as string}>
+          <Select onValueChange={field.onChange} value={field.value as string}>
             <FormControl>
               <SelectTrigger>
                 <SelectValue placeholder={placeholder} />
