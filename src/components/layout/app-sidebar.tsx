@@ -152,12 +152,31 @@ const NavItemWithSubmenu = ({
 }) => {
   const pathname = usePathname();
   const isAnySubmenuActive = submenu.some(item => pathname.startsWith(item.href) && item.href !== '#');
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(isAnySubmenuActive);
+  const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
-    setIsOpen(isAnySubmenuActive);
-  }, [isAnySubmenuActive]);
+    setIsClient(true);
+  }, []);
 
+  useEffect(() => {
+    if (isClient) {
+        setIsOpen(isAnySubmenuActive);
+    }
+  }, [isAnySubmenuActive, isClient]);
+
+  if (!isClient) {
+    // Render nothing or a placeholder on the server to avoid mismatch
+    return (
+        <SidebarMenuButton className="justify-between w-full">
+            <div className="flex items-center gap-2">
+                <Icon />
+                <span>{title}</span>
+            </div>
+            <ChevronDown className='h-4 w-4' />
+        </SidebarMenuButton>
+    );
+  }
 
   return (
     <Collapsible open={isOpen} onOpenChange={setIsOpen}>
