@@ -50,7 +50,7 @@ type MenuItem = {
 };
 
 const mainNavItems: MenuItem[] = [
-  { icon: LayoutDashboard, title: 'Dashboard', href: '/' },
+  { icon: LayoutDashboard, title: 'Dashboard', href: '/dashboard' },
   {
     icon: GitMerge,
     title: 'Risk Integration',
@@ -137,6 +137,7 @@ const mainNavItems: MenuItem[] = [
   { icon: Gavel, title: 'Governance & Compliance', href: '#' },
 ];
 
+
 const footerNavItems: MenuItem[] = [
   { icon: Settings, title: 'Settings', href: '#' },
 ];
@@ -163,12 +164,13 @@ const NavItemWithSubmenu = ({
     if (isClient) {
         setIsOpen(isAnySubmenuActive);
     }
-  }, [isAnySubmenuActive, isClient]);
+  }, [isAnySubmenuActive, pathname, isClient]);
+
 
   if (!isClient) {
-    // Render nothing or a placeholder on the server to avoid mismatch
+    // Render a static placeholder on the server
     return (
-        <SidebarMenuButton className="justify-between w-full">
+        <SidebarMenuButton className="justify-between w-full" isActive={isAnySubmenuActive}>
             <div className="flex items-center gap-2">
                 <Icon />
                 <span>{title}</span>
@@ -177,6 +179,7 @@ const NavItemWithSubmenu = ({
         </SidebarMenuButton>
     );
   }
+
 
   return (
     <Collapsible open={isOpen} onOpenChange={setIsOpen}>
