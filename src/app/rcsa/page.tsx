@@ -3,14 +3,13 @@
 
 import { useState, useMemo, useEffect } from 'react';
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
-import { Card, CardContent } from '@/components/ui/card';
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import {
   Select,
@@ -20,7 +19,12 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
-import { getRcsaData, addRcsaSubmission, updateRcsaData, type RCSAData } from '@/lib/rcsa-data';
+import {
+  addRcsaSubmission,
+  getRcsaDraft,
+  updateRcsaDraft,
+  type RCSAData,
+} from '@/lib/rcsa-data';
 import { getRcsaMasterData } from '@/lib/rcsa-master-data';
 import { useToast } from '@/hooks/use-toast';
 import { Save, Send } from 'lucide-react';
@@ -36,6 +40,8 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
+import { Separator } from '@/components/ui/separator';
+import { Label } from '@/components/ui/label';
 
 const jenisRisikoOptions = [
   'Risiko Kredit',
@@ -51,11 +57,42 @@ const jenisRisikoOptions = [
 ];
 
 const getLevelFromBesaran = (besaran: number | null | undefined) => {
-  if (besaran === null || besaran === undefined) return { label: '-', className: '' };
-  if (besaran >= 20) return { label: 'Sangat Tinggi', className: 'bg-red-700 text-white' };
-  if (besaran >= 12) return { label: 'Tinggi', className: 'bg-red-500 text-white' };
-  if (besaran >= 5) return { label: 'Menengah', className: 'bg-yellow-400 text-black' };
+  if (besaran === null || besaran === undefined)
+    return { label: '-', className: '' };
+  if (besaran >= 20)
+    return { label: 'Sangat Tinggi', className: 'bg-red-700 text-white' };
+  if (besaran >= 12)
+    return { label: 'Tinggi', className: 'bg-red-500 text-white' };
+  if (besaran >= 5)
+    return { label: 'Menengah', className: 'bg-yellow-400 text-black' };
   return { label: 'Rendah', className: 'bg-green-500 text-white' };
+};
+
+const CalculatedValue = ({ label, value, className }: { label: string, value: string | number | null, className?: string }) => (
+    <div className="space-y-1">
+        <p className="text-sm font-medium text-muted-foreground">{label}</p>
+        <div className={`flex h-10 w-full items-center justify-center rounded-md border border-input bg-muted/50 px-3 py-2 text-sm font-bold ${className}`}>
+           {value || '-'}
+        </div>
+    </div>
+);
+
+const LevelBadge = ({ besaran }: { besaran: number | null | undefined }) => {
+  const level = getLevelFromBesaran(besaran);
+  return (
+    <div className="space-y-1">
+      <p className="text-sm font-medium text-muted-foreground">Level</p>
+      <div className="flex h-10 items-center justify-center rounded-md border border-input bg-muted/50">
+        <span
+          className={`px-3 py-1 rounded text-xs font-semibold ${
+            level.className || 'bg-muted/50'
+          }`}
+        >
+          {level.label}
+        </span>
+      </div>
+    </div>
+  );
 };
 
 
@@ -66,35 +103,39 @@ export default function Rcsapage() {
   const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
-    // Load current working data, or master data if none exists
-    setData(getRcsaData());
+    // Load current working data from draft, or master data if none exists
+    setData(getRcsaDraft());
     setIsLoading(false);
   }, []);
 
   const calculatedData = useMemo(() => {
-    return data.map(row => {
+    return data.map((row) => {
       const dampakInheren = row.dampakInheren;
       const frekuensiInheren = row.frekuensiInheren;
-      const besaranInheren = (dampakInheren !== null && frekuensiInheren !== null && dampakInheren > 0 && frekuensiInheren > 0)
-        ? dampakInheren * frekuensiInheren
-        : null;
-      const levelInheren = getLevelFromBesaran(besaranInheren).label;
+      const besaranInheren =
+        dampakInheren !== null &&
+        frekuensiInheren !== null &&
+        dampakInheren > 0 &&
+        frekuensiInheren > 0
+          ? dampakInheren * frekuensiInheren
+          : null;
 
       const dampakResidual = row.dampakResidual;
       const kemungkinanResidual = row.kemungkinanResidual;
-      const besaranResidual = (dampakResidual !== null && kemungkinanResidual !== null && dampakResidual > 0 && kemungkinanResidual > 0)
-        ? dampakResidual * kemungkinanResidual
-        : null;
-      const levelResidual = getLevelFromBesaran(besaranResidual).label;
-      
+      const besaranResidual =
+        dampakResidual !== null &&
+        kemungkinanResidual !== null &&
+        dampakResidual > 0 &&
+        kemungkinanResidual > 0
+          ? dampakResidual * kemungkinanResidual
+          : null;
+
       return {
         ...row,
         besaranInheren,
-        levelInheren,
         besaranResidual,
-        levelResidual
       };
-    })
+    });
   }, [data]);
 
   const handleInputChange = (
@@ -113,8 +154,7 @@ export default function Rcsapage() {
   const handleSave = () => {
     setIsSaving(true);
     setTimeout(() => {
-      // updateRcsaData saves the current form state as a draft
-      updateRcsaData(data);
+      updateRcsaDraft(data);
       toast({
         title: 'Sukses!',
         description: 'Data RCSA berhasil disimpan sebagai draf.',
@@ -122,20 +162,20 @@ export default function Rcsapage() {
       setIsSaving(false);
     }, 1000);
   };
-  
+
   const handleSubmit = () => {
-     // addRcsaSubmission adds the current data as a new report
-     addRcsaSubmission(data);
-     toast({
-        title: 'Data Terkirim!',
-        description: 'Data RCSA Anda telah berhasil dikirim untuk ditinjau oleh admin.',
-        variant: 'default',
-     });
-     // Reset form to master data after submission
-     const masterData = getRcsaMasterData();
-     setData(masterData);
-     // Also update the draft with the clean master data
-     updateRcsaData(masterData);
+    addRcsaSubmission(data);
+    toast({
+      title: 'Data Terkirim!',
+      description:
+        'Data RCSA Anda telah berhasil dikirim untuk ditinjau oleh admin.',
+      variant: 'default',
+    });
+    // Reset form to master data after submission
+    const masterData = getRcsaMasterData();
+    setData(masterData);
+    // Also update the draft with the clean master data
+    updateRcsaDraft(masterData);
   };
 
   if (isLoading) {
@@ -160,159 +200,165 @@ export default function Rcsapage() {
           </Button>
           <AlertDialog>
             <AlertDialogTrigger asChild>
-                <Button>
-                    <Send className="mr-2 h-4 w-4" />
-                    Kirim ke Admin
-                </Button>
+              <Button>
+                <Send className="mr-2 h-4 w-4" />
+                Kirim ke Admin
+              </Button>
             </AlertDialogTrigger>
             <AlertDialogContent>
               <AlertDialogHeader>
                 <AlertDialogTitle>Konfirmasi Pengiriman</AlertDialogTitle>
                 <AlertDialogDescription>
-                  Apakah Anda yakin ingin mengirim data RCSA ini? Setelah dikirim, data tidak dapat diubah kembali hingga ditinjau oleh admin.
+                  Apakah Anda yakin ingin mengirim data RCSA ini? Setelah
+                  dikirim, draf Anda akan dibersihkan dan laporan baru akan
+                  dibuat untuk admin.
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
                 <AlertDialogCancel>Batal</AlertDialogCancel>
-                <AlertDialogAction onClick={handleSubmit}>Ya, Kirim Data</AlertDialogAction>
+                <AlertDialogAction onClick={handleSubmit}>
+                  Ya, Kirim Data
+                </AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialog>
         </div>
       </div>
 
-      <Card>
-        <CardContent className="p-0">
-          <div className="overflow-x-auto">
-            <Table className="min-w-max whitespace-nowrap">
-               <TableHeader>
-                <TableRow>
-                  <TableHead rowSpan={2} className="w-[40px] text-center sticky left-0 bg-card z-10 border-r">No.</TableHead>
-                  <TableHead rowSpan={2} className="min-w-[200px] sticky left-12 bg-card z-10 border-r">Unit Kerja</TableHead>
-                  <TableHead rowSpan={2} className="min-w-[300px] sticky left-64 bg-card z-10 border-r">Potensi Risiko</TableHead>
-                  <TableHead rowSpan={2} className="min-w-[200px] border-r">Jenis Risiko</TableHead>
-                  <TableHead rowSpan={2} className="min-w-[250px] border-r">Penyebab Risiko</TableHead>
-                  
-                  <TableHead colSpan={4} className="text-center border-x">RISIKO INHEREN</TableHead>
-                  
-                  <TableHead rowSpan={2} className="min-w-[250px] border-r">Pengendalian/Mitigasi Risiko</TableHead>
-                  
-                  <TableHead colSpan={4} className="text-center border-x">RISIKO RESIDUAL</TableHead>
-                  
-                  <TableHead rowSpan={2} className="min-w-[180px] border-r">Penilaian Tingkat Efektivitas Kontrol</TableHead>
-                  <TableHead rowSpan={2} className="min-w-[250px] border-r">Action Plan/Mitigasi</TableHead>
-                  <TableHead rowSpan={2} className="min-w-[150px] border-r">PIC</TableHead>
-                  <TableHead rowSpan={2} className="min-w-[250px]">Keterangan</TableHead>
-                </TableRow>
-                <TableRow>
-                  {/* RISIKO INHEREN */}
-                  <TableHead className="w-[80px] text-center border-x">Dampak</TableHead>
-                  <TableHead className="w-[80px] text-center">Frekuensi</TableHead>
-                  <TableHead className="w-[80px] text-center border-x">Besaran</TableHead>
-                  <TableHead className="w-[120px] text-center">Level</TableHead>
-                  {/* RISIKO RESIDUAL */}
-                  <TableHead className="w-[80px] text-center border-x">Dampak</TableHead>
-                  <TableHead className="w-[110px] text-center">Kemungkinan</TableHead>
-                  <TableHead className="w-[80px] text-center border-x">Besaran</TableHead>
-                  <TableHead className="w-[120px] text-center">Level</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {calculatedData.map((row, index) => (
-                  <TableRow key={row.no}>
-                    <TableCell className="text-center sticky left-0 bg-card z-10 border-r">{row.no}</TableCell>
-                    <TableCell className="font-medium bg-muted/30 sticky left-12 bg-card z-10 border-r">{row.unitKerja}</TableCell>
-                    <TableCell className="font-medium bg-muted/30 sticky left-64 bg-card z-10 border-r whitespace-normal">{row.potensiRisiko}</TableCell>
-                    
-                    <TableCell>
-                       <Select
-                        value={row.jenisRisiko || ''}
-                        onValueChange={(value) => handleInputChange(index, 'jenisRisiko', value)}
-                      >
-                        <SelectTrigger><SelectValue placeholder="Pilih..." /></SelectTrigger>
-                        <SelectContent>
-                          {jenisRisikoOptions.map(option => (
-                             <SelectItem key={option} value={option}>{option}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </TableCell>
-                    <TableCell>
-                       <Textarea
-                        value={row.penyebabRisiko || ''}
-                        onChange={(e) => handleInputChange(index, 'penyebabRisiko', e.target.value)}
-                        className="min-h-[50px]"
-                      />
-                    </TableCell>
+      <div className="space-y-6">
+        {calculatedData.map((row, index) => (
+          <Card key={row.no}>
+            <CardHeader>
+              <div className="flex justify-between items-start">
+                  <div>
+                    <p className="text-sm font-semibold text-primary">{row.unitKerja}</p>
+                    <CardTitle>Potensi Risiko #{row.no}</CardTitle>
+                  </div>
+              </div>
+              <CardDescription className="pt-2 text-base text-foreground">
+                {row.potensiRisiko}
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                     <div>
+                        <Label htmlFor={`jenis-risiko-${index}`}>Jenis Risiko</Label>
+                         <Select
+                          value={row.jenisRisiko || ''}
+                          onValueChange={(value) => handleInputChange(index, 'jenisRisiko', value)}
+                        >
+                          <SelectTrigger id={`jenis-risiko-${index}`}><SelectValue placeholder="Pilih..." /></SelectTrigger>
+                          <SelectContent>
+                            {jenisRisikoOptions.map(option => (
+                               <SelectItem key={option} value={option}>{option}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                     </div>
+                     <div>
+                        <Label htmlFor={`penyebab-risiko-${index}`}>Penyebab Risiko</Label>
+                        <Textarea
+                          id={`penyebab-risiko-${index}`}
+                          value={row.penyebabRisiko || ''}
+                          onChange={(e) => handleInputChange(index, 'penyebabRisiko', e.target.value)}
+                          className="min-h-[40px]"
+                        />
+                     </div>
+                </div>
 
-                    {/* INHEREN */}
-                    <TableCell>
-                      <Input type="number" min="1" max="5" value={row.dampakInheren || ''} onChange={(e) => handleInputChange(index, 'dampakInheren', parseInt(e.target.value) || null)} className="text-center" />
-                    </TableCell>
-                    <TableCell>
-                      <Input type="number" min="1" max="5" value={row.frekuensiInheren || ''} onChange={(e) => handleInputChange(index, 'frekuensiInheren', parseInt(e.target.value) || null)} className="text-center" />
-                    </TableCell>
-                    <TableCell className="text-center font-bold">{row.besaranInheren || '-'}</TableCell>
-                    <TableCell className="text-center">
-                        <span className={`px-2 py-1 rounded text-xs font-semibold ${getLevelFromBesaran(row.besaranInheren).className}`}>
-                           {row.levelInheren || '-'}
-                        </span>
-                    </TableCell>
+                <Separator />
+                
+                <div>
+                    <h3 className="text-lg font-semibold mb-4">Risiko Inheren</h3>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div>
+                            <Label htmlFor={`dampak-inheren-${index}`}>Dampak (1-5)</Label>
+                            <Input id={`dampak-inheren-${index}`} type="number" min="1" max="5" value={row.dampakInheren || ''} onChange={(e) => handleInputChange(index, 'dampakInheren', parseInt(e.target.value) || null)} className="text-center" />
+                        </div>
+                         <div>
+                            <Label htmlFor={`frekuensi-inheren-${index}`}>Frekuensi (1-5)</Label>
+                            <Input id={`frekuensi-inheren-${index}`} type="number" min="1" max="5" value={row.frekuensiInheren || ''} onChange={(e) => handleInputChange(index, 'frekuensiInheren', parseInt(e.target.value) || null)} className="text-center" />
+                        </div>
+                        <CalculatedValue label="Besaran" value={row.besaranInheren} />
+                        <LevelBadge besaran={row.besaranInheren} />
+                    </div>
+                </div>
 
-                    <TableCell>
-                       <Textarea
+                <Separator />
+                
+                 <div>
+                    <Label htmlFor={`pengendalian-${index}`}>Pengendalian/Mitigasi Risiko yang Ada</Label>
+                    <Textarea
+                        id={`pengendalian-${index}`}
                         value={row.pengendalian || ''}
                         onChange={(e) => handleInputChange(index, 'pengendalian', e.target.value)}
-                         className="min-h-[50px]"
-                      />
-                    </TableCell>
-                    
-                    {/* RESIDUAL */}
-                    <TableCell>
-                       <Input type="number" min="1" max="5" value={row.dampakResidual || ''} onChange={(e) => handleInputChange(index, 'dampakResidual', parseInt(e.target.value) || null)} className="text-center" />
-                    </TableCell>
-                    <TableCell>
-                       <Input type="number" min="1" max="5" value={row.kemungkinanResidual || ''} onChange={(e) => handleInputChange(index, 'kemungkinanResidual', parseInt(e.target.value) || null)} className="text-center" />
-                    </TableCell>
-                     <TableCell className="text-center font-bold">{row.besaranResidual || '-'}</TableCell>
-                    <TableCell className="text-center">
-                        <span className={`px-2 py-1 rounded text-xs font-semibold ${getLevelFromBesaran(row.besaranResidual).className}`}>
-                           {row.levelResidual || '-'}
-                        </span>
-                    </TableCell>
+                    />
+                </div>
 
-                    <TableCell>
-                      <Select
-                        value={row.penilaianKontrol || ''}
-                        onValueChange={(value) => handleInputChange(index, 'penilaianKontrol', value)}
-                      >
-                        <SelectTrigger><SelectValue placeholder="Pilih..." /></SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="Efektif">Efektif</SelectItem>
-                          <SelectItem value="Cukup Efektif">Cukup Efektif</SelectItem>
-                          <SelectItem value="Tidak Efektif">Tidak Efektif</SelectItem>
-                          <SelectItem value="#N/A">N/A</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </TableCell>
-                    <TableCell>
-                       <Textarea
-                        value={row.actionPlan || ''}
-                        onChange={(e) => handleInputChange(index, 'actionPlan', e.target.value)}
-                         className="min-h-[50px]"
-                      />
-                    </TableCell>
-                    <TableCell>
-                      <Input value={row.pic || ''} onChange={(e) => handleInputChange(index, 'pic', e.target.value)} />
-                    </TableCell>
-                    <TableCell className="font-medium bg-muted/30 whitespace-normal">{row.keterangan}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
-        </CardContent>
-      </Card>
+                <Separator />
+
+                <div>
+                    <h3 className="text-lg font-semibold mb-4">Risiko Residual</h3>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div>
+                           <Label htmlFor={`dampak-residual-${index}`}>Dampak (1-5)</Label>
+                           <Input id={`dampak-residual-${index}`} type="number" min="1" max="5" value={row.dampakResidual || ''} onChange={(e) => handleInputChange(index, 'dampakResidual', parseInt(e.target.value) || null)} className="text-center" />
+                        </div>
+                        <div>
+                           <Label htmlFor={`kemungkinan-residual-${index}`}>Kemungkinan (1-5)</Label>
+                           <Input id={`kemungkinan-residual-${index}`} type="number" min="1" max="5" value={row.kemungkinanResidual || ''} onChange={(e) => handleInputChange(index, 'kemungkinanResidual', parseInt(e.target.value) || null)} className="text-center" />
+                        </div>
+                        <CalculatedValue label="Besaran" value={row.besaranResidual} />
+                        <LevelBadge besaran={row.besaranResidual} />
+                    </div>
+                </div>
+
+                 <Separator />
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div>
+                        <Label htmlFor={`penilaian-kontrol-${index}`}>Penilaian Tingkat Efektivitas Kontrol</Label>
+                        <Select
+                            value={row.penilaianKontrol || ''}
+                            onValueChange={(value) => handleInputChange(index, 'penilaianKontrol', value)}
+                        >
+                            <SelectTrigger id={`penilaian-kontrol-${index}`}><SelectValue placeholder="Pilih..." /></SelectTrigger>
+                            <SelectContent>
+                            <SelectItem value="Efektif">Efektif</SelectItem>
+                            <SelectItem value="Cukup Efektif">Cukup Efektif</SelectItem>
+                            <SelectItem value="Tidak Efektif">Tidak Efektif</SelectItem>
+                            <SelectItem value="#N/A">N/A</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
+                    <div>
+                        <Label htmlFor={`action-plan-${index}`}>Action Plan/Mitigasi</Label>
+                        <Textarea
+                            id={`action-plan-${index}`}
+                            value={row.actionPlan || ''}
+                            onChange={(e) => handleInputChange(index, 'actionPlan', e.target.value)}
+                             className="min-h-[40px]"
+                        />
+                    </div>
+                    <div>
+                        <Label htmlFor={`pic-${index}`}>PIC</Label>
+                        <Input id={`pic-${index}`} value={row.pic || ''} onChange={(e) => handleInputChange(index, 'pic', e.target.value)} />
+                    </div>
+                </div>
+            </CardContent>
+            {row.keterangan && (
+                <>
+                <Separator />
+                <CardFooter className="pt-6">
+                    <p className="text-xs text-muted-foreground">
+                        <strong>Keterangan dari Admin:</strong> {row.keterangan}
+                    </p>
+                </CardFooter>
+                </>
+            )}
+          </Card>
+        ))}
+      </div>
     </div>
   );
 }
