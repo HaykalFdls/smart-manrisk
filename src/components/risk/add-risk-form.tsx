@@ -26,6 +26,7 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { ScrollArea } from '../ui/scroll-area';
+import type { RiskData } from '@/app/risk-register/[division]/page';
 
 const formSchema = z.object({
   kategori: z.string().min(1, 'Kategori risiko harus diisi.'),
@@ -61,22 +62,12 @@ const formSchema = z.object({
 
 type AddRiskFormValues = z.infer<typeof formSchema>;
 
-type RiskData = {
-  id: string;
-  kategori: string;
-  riskEvent: string;
-  risikoResidual: 'Rendah' | 'Menengah' | 'Tinggi' | 'Kritis';
-  riskOwner: string;
-  treatmentPlan: string;
-  isFraud: boolean;
-};
-
 export function AddRiskForm({
   onSuccess,
   division,
   existingData,
 }: {
-  onSuccess: () => void;
+  onSuccess: (data: RiskData) => void;
   division: string;
   existingData?: RiskData | null;
 }) {
@@ -122,15 +113,24 @@ export function AddRiskForm({
         isFraud: existingData.isFraud ? 'Ya' : 'Tidak',
       });
     }
-  }, [existingData, form]);
+  }, [existingData, form, division]);
 
   function onSubmit(values: AddRiskFormValues) {
-    console.log(values);
+    const riskData: RiskData = {
+      id: existingData ? existingData.id : `TEMP-${Date.now()}`,
+      kategori: values.kategori,
+      riskEvent: values.riskEvent,
+      risikoResidual: values.risikoResidual,
+      riskOwner: values.riskOwner,
+      treatmentPlan: values.treatmentPlan,
+      isFraud: values.isFraud === 'Ya',
+    };
+
     toast({
       title: 'Sukses!',
       description: `Data risiko berhasil ${existingData ? 'diperbarui' : 'ditambahkan'}.`,
     });
-    onSuccess();
+    onSuccess(riskData);
   }
   
   const renderInput = (name: keyof AddRiskFormValues, label: string, placeholder: string, type: string = "text", disabled: boolean = false) => (
@@ -244,3 +244,5 @@ export function AddRiskForm({
     </Form>
   );
 }
+
+    

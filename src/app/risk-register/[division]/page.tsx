@@ -44,7 +44,7 @@ import { RiskDetailsModal } from '@/components/risk/risk-details-modal';
 import { AddRiskForm } from '@/components/risk/add-risk-form';
 
 
-type RiskData = {
+export type RiskData = {
   id: string;
   kategori: string;
   riskEvent: string;
@@ -160,6 +160,18 @@ export default function RiskDetailPage() {
     });
   };
 
+  const handleFormSuccess = (data: RiskData) => {
+    if (editingRisk) {
+      // Update existing risk
+      setRisks(risks.map(r => r.id === data.id ? data : r));
+    } else {
+      // Add new risk
+      setRisks([...risks, data]);
+    }
+    setFormModalOpen(false);
+    setEditingRisk(null);
+  };
+
   return (
     <>
       <div className="flex flex-1 flex-col p-4 md:p-6 lg:p-8 bg-gray-50/50">
@@ -269,11 +281,7 @@ export default function RiskDetailPage() {
             <AddRiskForm
               division={pageTitle}
               existingData={editingRisk}
-              onSuccess={() => {
-                setFormModalOpen(false);
-                setEditingRisk(null);
-                // Here you would typically refetch or update the risks data
-              }}
+              onSuccess={handleFormSuccess}
             />
           </div>
         </DialogContent>
@@ -297,3 +305,5 @@ export default function RiskDetailPage() {
     </>
   );
 }
+
+    
