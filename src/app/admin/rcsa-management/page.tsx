@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Table,
   TableBody,
@@ -18,17 +18,24 @@ import { PlusCircle, Save, Trash2 } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 
+type RCSAAdminData = Pick<RCSAData, 'no' | 'unitKerja' | 'potensiRisiko' | 'keterangan'>;
+
 export default function RcsaManagementPage() {
   const { toast } = useToast();
-  // We only manage a subset of fields here
-  const [data, setData] = useState<Pick<RCSAData, 'no' | 'unitKerja' | 'potensiRisiko' | 'keterangan'>[]>(
-    getRcsaData().map(({ no, unitKerja, potensiRisiko, keterangan }) => ({ no, unitKerja, potensiRisiko, keterangan }))
-  );
+  const [data, setData] = useState<RCSAAdminData[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+
+  useEffect(() => {
+    const allData = getRcsaData();
+    const adminViewData = allData.map(({ no, unitKerja, potensiRisiko, keterangan }) => ({ no, unitKerja, potensiRisiko, keterangan }));
+    setData(adminViewData);
+    setIsLoading(false);
+  }, []);
 
   const handleInputChange = (
     index: number,
-    field: keyof Pick<RCSAData, 'unitKerja' | 'potensiRisiko' | 'keterangan'>,
+    field: keyof Omit<RCSAAdminData, 'no'>,
     value: string
   ) => {
     const newData = [...data];
@@ -38,7 +45,7 @@ export default function RcsaManagementPage() {
   };
   
   const handleAddNew = () => {
-    const newRisk = {
+    const newRisk: RCSAAdminData = {
         no: data.length > 0 ? Math.max(...data.map(d => d.no)) + 1 : 1,
         unitKerja: '',
         potensiRisiko: '',
@@ -48,28 +55,33 @@ export default function RcsaManagementPage() {
   };
 
   const handleDelete = (indexToDelete: number) => {
-    const newData = data.filter((_, index) => index !== indexToDelete);
-    setData(newData);
+    setData(prevData => prevData.filter((_, index) => index !== indexToDelete));
   };
 
   const handleSave = () => {
     setIsSaving(true);
+    // Simulate async operation
     setTimeout(() => {
       const existingData = getRcsaData();
       
+      const updatedNos = new Set(data.map(d => d.no));
+      const removedData = existingData.filter(d => !updatedNos.has(d.no));
+
       const finalData = data.map((adminRow, index) => {
           const existingRow = existingData.find(d => d.no === adminRow.no) || {};
           return {
               ...existingRow,
               ...adminRow,
-              no: index + 1, // Re-number to keep sequence
           };
       }) as RCSAData[];
 
+      const finalDataWithoutRemoved = finalData.filter(d => updatedNos.has(d.no))
+         .map((d, index) => ({...d, no: index + 1}));
 
-      updateRcsaData(finalData);
-      // Update local state with re-numbered data to stay in sync
-      setData(finalData.map(({ no, unitKerja, potensiRisiko, keterangan }) => ({ no, unitKerja, potensiRisiko, keterangan })));
+
+      updateRcsaData(finalDataWithoutRemoved);
+      
+      setData(finalDataWithoutRemoved.map(({ no, unitKerja, potensiRisiko, keterangan }) => ({ no, unitKerja, potensiRisiko, keterangan })));
 
       toast({
         title: 'Sukses!',
@@ -78,6 +90,10 @@ export default function RcsaManagementPage() {
       setIsSaving(false);
     }, 1000);
   };
+
+  if (isLoading) {
+    return <div className="p-8">Memuat data...</div>;
+  }
 
   return (
     <div className="flex flex-1 flex-col p-4 md:p-6 lg:p-8">

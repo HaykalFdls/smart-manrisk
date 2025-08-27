@@ -1,6 +1,7 @@
 
 'use client';
 
+import { useState, useEffect, useMemo } from 'react';
 import {
   Table,
   TableBody,
@@ -11,7 +12,8 @@ import {
 } from '@/components/ui/table';
 import { Card, CardContent } from '@/components/ui/card';
 import { getRcsaData, type RCSAData } from '@/lib/rcsa-data';
-import { useMemo } from 'react';
+import { Button } from '@/components/ui/button';
+import { RefreshCw } from 'lucide-react';
 
 const getLevelFromBesaran = (besaran: number | null | undefined) => {
   if (besaran === null || besaran === undefined) return { label: '-', className: '' };
@@ -23,7 +25,18 @@ const getLevelFromBesaran = (besaran: number | null | undefined) => {
 
 
 export default function RcsaReportPage() {
-  const data: RCSAData[] = getRcsaData();
+  const [data, setData] = useState<RCSAData[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const loadData = () => {
+    setIsLoading(true);
+    setData(getRcsaData());
+    setIsLoading(false);
+  };
+  
+  useEffect(() => {
+    loadData();
+  }, []);
 
   const calculatedData = useMemo(() => {
     return data.map(row => {
@@ -51,15 +64,25 @@ export default function RcsaReportPage() {
     })
   }, [data]);
 
+  if (isLoading) {
+    return <div className="p-8">Memuat data...</div>;
+  }
+
   return (
     <div className="flex flex-1 flex-col p-4 md:p-6 lg:p-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold tracking-tight">
-          Laporan RCSA Terisi
-        </h1>
-        <p className="text-muted-foreground">
-          Tinjau data RCSA yang telah diisi dan dikirim oleh unit operasional.
-        </p>
+      <div className="mb-8 flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">
+            Laporan RCSA Terisi
+          </h1>
+          <p className="text-muted-foreground">
+            Tinjau data RCSA yang telah diisi dan dikirim oleh unit operasional.
+          </p>
+        </div>
+        <Button onClick={loadData} variant="outline">
+            <RefreshCw className="mr-2 h-4 w-4" />
+            Muat Ulang Data
+        </Button>
       </div>
 
       <Card>

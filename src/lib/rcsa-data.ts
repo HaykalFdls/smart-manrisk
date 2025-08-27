@@ -1,4 +1,6 @@
 
+'use client';
+
 export type RCSAData = {
   no: number;
   unitKerja: string;
@@ -34,8 +36,7 @@ export type RCSAData = {
   levelResidual?: string | null;
 };
 
-// This is our mock database. In a real application, this would be a database call.
-let rcsaDataStore: RCSAData[] = [
+const initialData: RCSAData[] = [
   {
     no: 1,
     unitKerja: 'Teller',
@@ -118,15 +119,37 @@ let rcsaDataStore: RCSAData[] = [
   },
 ];
 
+const RCSA_DATA_KEY = 'rcsaDataStore';
 
 // Function to get the current data
 export const getRcsaData = (): RCSAData[] => {
-  // Return a copy to prevent direct mutation of the store
-  return JSON.parse(JSON.stringify(rcsaDataStore));
+  if (typeof window === 'undefined') {
+    return initialData;
+  }
+  try {
+    const item = window.localStorage.getItem(RCSA_DATA_KEY);
+    if (item) {
+      return JSON.parse(item);
+    } else {
+      // If no data in localStorage, initialize with default data
+      window.localStorage.setItem(RCSA_DATA_KEY, JSON.stringify(initialData));
+      return initialData;
+    }
+  } catch (error) {
+    console.error("Failed to read from localStorage", error);
+    return initialData;
+  }
 };
 
 // Function to update the data
 export const updateRcsaData = (newData: RCSAData[]) => {
-  // We only store the core data, not the calculated fields
-  rcsaDataStore = newData.map(({ besaranInheren, levelInheren, besaranResidual, levelResidual, ...rest }) => rest);
+   if (typeof window === 'undefined') {
+    return;
+  }
+  try {
+     const dataToStore = newData.map(({ besaranInheren, levelInheren, besaranResidual, levelResidual, ...rest }) => rest);
+     window.localStorage.setItem(RCSA_DATA_KEY, JSON.stringify(dataToStore));
+  } catch (error) {
+     console.error("Failed to write to localStorage", error);
+  }
 };

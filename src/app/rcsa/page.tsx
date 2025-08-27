@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import {
   Table,
   TableBody,
@@ -10,7 +10,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import {
   Select,
@@ -60,8 +60,14 @@ const getLevelFromBesaran = (besaran: number | null | undefined) => {
 
 export default function Rcsapage() {
   const { toast } = useToast();
-  const [data, setData] = useState<RCSAData[]>(getRcsaData());
+  const [data, setData] = useState<RCSAData[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+
+  useEffect(() => {
+    setData(getRcsaData());
+    setIsLoading(false);
+  }, []);
 
   const calculatedData = useMemo(() => {
     return data.map(row => {
@@ -115,14 +121,17 @@ export default function Rcsapage() {
   };
   
   const handleSubmit = () => {
-     // Here you would typically send the data to the server
-     // For now, we just show a toast
+     updateRcsaData(data);
      toast({
         title: 'Data Terkirim!',
         description: 'Data RCSA Anda telah berhasil dikirim untuk ditinjau oleh admin.',
         variant: 'default',
      });
   };
+
+  if (isLoading) {
+    return <div className="p-8">Memuat data...</div>;
+  }
 
   return (
     <div className="flex flex-1 flex-col p-4 md:p-6 lg:p-8">
