@@ -143,7 +143,8 @@ const adminNavItems: MenuItem[] = [
         icon: Shield,
         title: 'Admin',
         submenu: [
-            { name: 'Kelola RCSA', href: '/admin/rcsa-management' },
+            { name: 'Kelola Master RCSA', href: '/admin/rcsa-management' },
+            { name: 'Laporan RCSA', href: '/admin/rcsa-report' },
         ]
     }
 ];
