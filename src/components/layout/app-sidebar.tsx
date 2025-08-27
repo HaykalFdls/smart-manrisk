@@ -56,16 +56,6 @@ const mainNavItems: MenuItem[] = [
     title: 'Risk Integration',
     submenu: [
       { name: 'Dashboard & Report', href: '#' },
-      { name: 'Tingkat Kesehatan Bank (TKB)', href: '#' },
-      { name: 'Profil Risiko Bankwide', href: '#' },
-      { name: 'ICAAP', href: '#' },
-      { name: 'RAS', href: '#' },
-      { name: 'KRI', href: '#' },
-      { name: 'EWS', href: '#' },
-      { name: 'Profil Risiko Cabang', href: '#' },
-      { name: 'RMI', href: '#' },
-      { name: 'ICoFR', href: '#' },
-      { name: 'KMR', href: '#' },
       { name: 'Risk Register', href: '/risk-register' },
     ],
   },
@@ -74,14 +64,6 @@ const mainNavItems: MenuItem[] = [
     title: 'Credit & Investment Risk',
     submenu: [
       { name: 'Dashboard & Report', href: '#' },
-      { name: 'Root Cause of Credit Risk (RCCR)', href: '#' },
-      { name: 'Portofolio Guideline', href: '#' },
-      { name: 'Financing at Risk (FAR)', href: '#' },
-      { name: 'First Payment Default (FPD)', href: '#' },
-      { name: 'Risk Profile & Risk Limit', href: '#' },
-      { name: 'Vintage Analysis', href: '#' },
-      { name: 'Stress Test Kredit & Permodalan', href: '#' },
-      { name: 'ATMR Risiko Kredit', href: '#' },
     ],
   },
   {
@@ -89,12 +71,6 @@ const mainNavItems: MenuItem[] = [
     title: 'Liquidity & Market Risk',
     submenu: [
       { name: 'Dashboard & Report', href: '#' },
-      { name: 'LCR', href: '#' },
-      { name: 'Risk Profile & Risk Limit', href: '#' },
-      { name: 'NSFR', href: '#' },
-      { name: 'Stress Test Likuiditas dan Pasar', href: '#' },
-      { name: 'ATMR Risiko Pasar', href: '#' },
-      { name: 'IRRBB', href: '#' },
     ],
   },
   {
@@ -103,11 +79,6 @@ const mainNavItems: MenuItem[] = [
     submenu: [
       { name: 'Dashboard & Report', href: '#' },
       { name: 'Risk Control Self-Assessment (RCSA)', href: '/rcsa' },
-      { name: 'Loss Event Database (LED)', href: '#' },
-      { name: 'ATMR Risiko Operasional', href: '#' },
-      { name: 'Risk Profile & Risk Limit', href: '#' },
-      { name: 'Risk Self-Assessment (RSA)', href: '#' },
-      { name: 'Stress Test Operasional', href: '#' },
     ],
   },
   {
@@ -115,10 +86,6 @@ const mainNavItems: MenuItem[] = [
     title: 'IT Risk Management',
     submenu: [
       { name: 'Dashboard & Report', href: '#' },
-      { name: 'Profil Risiko Ketahanan & Keamanan Siber', href: '#' },
-      { name: 'Tingkat Maturitas Digital Bank', href: '#' },
-      { name: 'CSIRT', href: '#' },
-      { name: 'Risk Profile & Risk Limit', href: '#' },
     ],
   },
   {
@@ -126,11 +93,6 @@ const mainNavItems: MenuItem[] = [
     title: 'BCMS',
     submenu: [
       { name: 'Dashboard & report', href: '#' },
-      { name: 'Business Impact Analysis', href: '#' },
-      { name: 'Risk & Threat Assessment', href: '#' },
-      { name: 'Business Continuity Plan (BCP)', href: '#' },
-      { name: 'Disaster Recovery Plan (DRP)', href: '#' },
-      { name: 'Recovery & Resolution Plan', href: '#' },
     ],
   },
   { icon: FileText, title: 'Regulation Update', href: '#' },
