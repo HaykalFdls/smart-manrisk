@@ -10,7 +10,7 @@ import {
   CardFooter,
 } from '@/components/ui/card';
 import { useRouter } from 'next/navigation';
-import { Cpu, Landmark, Gavel, Users, ClipboardList, ArrowRight, Shield, Building, BarChart, Bank, DollarSign, Briefcase, FileText, Scale, Handshake, Search, Lightbulb, UserCheck, FolderGit2, Coins } from 'lucide-react';
+import { Cpu, Landmark, Gavel, Users, ClipboardList, ArrowRight, Shield, Building, BarChart, AreaChart, DollarSign, Briefcase, FileText, Scale, Handshake, Search, Lightbulb, UserCheck, FolderGit2, Coins } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
 const divisionData: { division: string; total: number; Icon: LucideIcon; description: string }[] = [
@@ -53,7 +53,7 @@ const divisionData: { division: string; total: number; Icon: LucideIcon; descrip
   {
     division: 'Divisi Dana Korporasi dan Institusi (Insbank)',
     total: 720,
-    Icon: Bank,
+    Icon: Landmark,
     description: 'Risiko terkait pendanaan dari korporasi dan institusi.',
   },
   {
@@ -77,7 +77,7 @@ const divisionData: { division: string; total: number; Icon: LucideIcon; descrip
   {
     division: 'Divisi Pengendalian Keuangan',
     total: 350,
-    Icon: Landmark,
+    Icon: AreaChart,
     description: 'Risiko terkait pasar, kredit, dan pelaporan keuangan.',
   },
   {
