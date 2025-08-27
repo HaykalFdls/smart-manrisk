@@ -1,6 +1,6 @@
 
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Sidebar,
   SidebarContent,
@@ -152,7 +152,12 @@ const NavItemWithSubmenu = ({
 }) => {
   const pathname = usePathname();
   const isAnySubmenuActive = submenu.some(item => pathname.startsWith(item.href) && item.href !== '#');
-  const [isOpen, setIsOpen] = useState(isAnySubmenuActive);
+  const [isOpen, setIsOpen] = useState(false);
+
+  useEffect(() => {
+    setIsOpen(isAnySubmenuActive);
+  }, [isAnySubmenuActive]);
+
 
   return (
     <Collapsible open={isOpen} onOpenChange={setIsOpen}>
