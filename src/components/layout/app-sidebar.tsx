@@ -31,6 +31,7 @@ import {
   ChevronDown,
   Settings,
   LogOut,
+  SlidersHorizontal,
   type LucideIcon,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -137,6 +138,16 @@ const mainNavItems: MenuItem[] = [
   { icon: Gavel, title: 'Governance & Compliance', href: '#' },
 ];
 
+const adminNavItems: MenuItem[] = [
+    {
+        icon: SlidersHorizontal,
+        title: 'Admin Panel',
+        submenu: [
+            { name: 'Manage RCSA', href: '/admin/rcsa' },
+        ],
+    },
+];
+
 const footerNavItems: MenuItem[] = [
   { icon: Settings, title: 'Settings', href: '#' },
   { icon: LogOut, title: 'Logout', href: '#' },
@@ -211,19 +222,14 @@ export function AppSidebar() {
       <div className="flex h-full flex-col">
         <SidebarHeader className="p-4">
           <Link href="/" className="flex flex-col items-center gap-2 text-sidebar-foreground">
-            <svg
+             <svg
                 xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                className="h-8 w-auto"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M12 2L2 7l10 5 10-5-10-5z" />
-                <path d="M2 17l10 5 10-5" />
-                <path d="M2 12l10 5 10-5" />
+                viewBox="0 0 256 256"
+                className="h-10 w-auto"
+                fill="currentColor"
+            >
+                <path d="M128 24a104 104 0 1 0 104 104A104.11 104.11 0 0 0 128 24Zm0 192a88 88 0 1 1 88-88a88.1 88.1 0 0 1-88 88Z" />
+                <path d="M172.42 72.83a8 8 0 0 0-10.84 2.83l-56 96a8 8 0 0 0 13.68 8l56-96a8 8 0 0 0-2.84-10.83Z" />
             </svg>
             <span className="text-xl font-semibold">
               SMART
@@ -233,6 +239,14 @@ export function AppSidebar() {
         <SidebarContent>
           <SidebarMenu>
             {mainNavItems.map((item) => (
+              <SidebarMenuItem key={item.title}>
+                <NavItem item={item} />
+              </SidebarMenuItem>
+            ))}
+             <SidebarMenuItem className="mt-4 border-t border-sidebar-border pt-4">
+                <span className="px-4 text-xs text-sidebar-foreground/50">Admin</span>
+            </SidebarMenuItem>
+             {adminNavItems.map((item) => (
               <SidebarMenuItem key={item.title}>
                 <NavItem item={item} />
               </SidebarMenuItem>

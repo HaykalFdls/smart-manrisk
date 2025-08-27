@@ -1,6 +1,6 @@
 
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Table,
   TableBody,
@@ -22,100 +22,8 @@ import {
 } from '@/components/ui/select';
 import { FilePlus } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
-
-type RCSAData = {
-  no: number;
-  potensiRisiko: string;
-  jenisRisiko: string | null;
-  penyebabRisiko: string | null;
-  dampakInheren: number | null;
-  frekuensiInheren: number | null;
-  pengendalian: string | null;
-  dampakResidual: number | null;
-  kemungkinanResidual: number | null;
-  penilaianKontrol: string | null;
-  actionPlan: string | null;
-  pic: string | null;
-  keterangan: string | null;
-};
-
-const initialRcsaData: RCSAData[] = [
-  {
-    no: 1,
-    potensiRisiko: 'Terdapat selisih KAS Teller',
-    jenisRisiko: 'Operasional',
-    penyebabRisiko: 'Human error',
-    dampakInheren: 4,
-    frekuensiInheren: 1,
-    pengendalian: 'Rekonsiliasi kas harian',
-    dampakResidual: 2,
-    kemungkinanResidual: 1,
-    penilaianKontrol: 'Efektif',
-    actionPlan: 'Tingkatkan frekuensi supervisi',
-    pic: 'Kepala Teller',
-    keterangan: '',
-  },
-  {
-    no: 2,
-    potensiRisiko: 'Terdapat pengisian slip oleh nasabah yang tidak dilakukan dengan benar (tidak lengkap, salah alamat, tidak diverifikasi)',
-    jenisRisiko: 'Operasional',
-    penyebabRisiko: 'Kurangnya pemahaman nasabah',
-    dampakInheren: 3,
-    frekuensiInheren: 2,
-    pengendalian: 'Verifikasi ulang oleh teller',
-    dampakResidual: 2,
-    kemungkinanResidual: 2,
-    penilaianKontrol: 'Tidak Efektif',
-    actionPlan: 'Edukasi nasabah melalui poster',
-    pic: 'Kepala Cabang',
-    keterangan: '',
-  },
-  {
-    no: 3,
-    potensiRisiko: 'Terjadi kelebihan pembayaran yang pada nasabah yang menarik uang cash pada teller',
-    jenisRisiko: null,
-    penyebabRisiko: null,
-    dampakInheren: null,
-    frekuensiInheren: null,
-    pengendalian: null,
-    dampakResidual: null,
-    kemungkinanResidual: null,
-    penilaianKontrol: 'Cukup Efektif',
-    actionPlan: null,
-    pic: null,
-    keterangan: null,
-  },
-  {
-    no: 4,
-    potensiRisiko: 'Terdapat pemalsuan tandatangan dari nasabah terhadap slip dll',
-    jenisRisiko: null,
-    penyebabRisiko: null,
-    dampakInheren: null,
-    frekuensiInheren: null,
-    pengendalian: null,
-    dampakResidual: null,
-    kemungkinanResidual: null,
-    penilaianKontrol: '#N/A',
-    actionPlan: null,
-    pic: null,
-    keterangan: null,
-  },
-  {
-    no: 5,
-    potensiRisiko: 'Terdapat selisih antara uang pada Mesin ATM dengan catatan buku besar kas ATM',
-    jenisRisiko: null,
-    penyebabRisiko: null,
-    dampakInheren: null,
-    frekuensiInheren: null,
-    pengendalian: null,
-    dampakResidual: null,
-    kemungkinanResidual: null,
-    penilaianKontrol: '#N/A',
-    actionPlan: null,
-    pic: null,
-    keterangan: null,
-  },
-];
+import type { RCSAData } from '@/lib/rcsa-data';
+import { getRcsaData, updateRcsaData } from '@/lib/rcsa-data';
 
 const jenisRisikoOptions = [
     "Risiko Kredit",
@@ -158,12 +66,18 @@ const getLevelBadgeVariant = (level: string) => {
 };
 
 export default function RcsasPage() {
-  const [data, setData] = useState<RCSAData[]>(initialRcsaData);
+  const [data, setData] = useState<RCSAData[]>([]);
+
+  useEffect(() => {
+    setData(getRcsaData());
+  }, []);
   
   const handleInputChange = <K extends keyof RCSAData>(index: number, field: K, value: RCSAData[K]) => {
       const newData = [...data];
       newData[index][field] = value;
       setData(newData);
+      // Note: In a real app, you'd likely want to save changes back to the source.
+      // For this prototype, changes are only kept in the component's state.
   };
   
   return (
@@ -173,10 +87,6 @@ export default function RcsasPage() {
             <h1 className="text-3xl font-bold tracking-tight">Risk Control Self-Assessment (RCSA)</h1>
             <p className="text-muted-foreground">Detailed risk assessment and control analysis.</p>
         </div>
-        <Button>
-            <FilePlus className="mr-2 h-4 w-4" />
-            Add New
-        </Button>
       </div>
       <Card>
         <CardContent className="p-0">
