@@ -26,7 +26,7 @@ import RiskChart from '@/components/dashboard/risk-chart';
 import AiSummary from '@/components/dashboard/ai-summary';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 
-export default function Home() {
+export default function DashboardPage() {
   return (
     <div className="flex flex-1 flex-col">
       <header className="sticky top-0 z-10 flex h-16 items-center gap-4 border-b bg-background px-4 md:px-6">

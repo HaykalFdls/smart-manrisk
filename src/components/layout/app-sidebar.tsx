@@ -34,6 +34,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 
 type SubMenuItem = {
   name: string;
@@ -48,7 +49,7 @@ type MenuItem = {
 };
 
 const mainNavItems: MenuItem[] = [
-  { icon: LayoutDashboard, title: 'Dashboard', href: '#' },
+  { icon: LayoutDashboard, title: 'Dashboard', href: '/' },
   {
     icon: GitMerge,
     title: 'Risk Integration',
@@ -64,7 +65,7 @@ const mainNavItems: MenuItem[] = [
       { name: 'RMI', href: '#' },
       { name: 'ICoFR', href: '#' },
       { name: 'KMR', href: '#' },
-      { name: 'Risk Register', href: '#' },
+      { name: 'Risk Register', href: '/risk-register' },
     ],
   },
   {
@@ -121,7 +122,7 @@ const mainNavItems: MenuItem[] = [
   },
   {
     icon: ShieldCheck,
-    title: 'Business Continuity (BCMS)',
+    title: 'BCMS',
     submenu: [
       { name: 'Dashboard & report', href: '#' },
       { name: 'Business Impact Analysis', href: '#' },
@@ -149,12 +150,14 @@ const NavItemWithSubmenu = ({
   title: string;
   submenu: SubMenuItem[];
 }) => {
-  const [isOpen, setIsOpen] = useState(false);
+  const pathname = usePathname();
+  const isAnySubmenuActive = submenu.some(item => item.href === pathname);
+  const [isOpen, setIsOpen] = useState(isAnySubmenuActive);
 
   return (
     <Collapsible open={isOpen} onOpenChange={setIsOpen}>
       <CollapsibleTrigger asChild>
-        <SidebarMenuButton className="justify-between w-full">
+        <SidebarMenuButton className="justify-between w-full" isActive={isAnySubmenuActive}>
           <div className="flex items-center gap-2">
             <Icon />
             <span>{title}</span>
@@ -171,8 +174,8 @@ const NavItemWithSubmenu = ({
         <SidebarMenuSub>
           {submenu.map((item) => (
             <SidebarMenuSubItem key={item.name}>
-              <SidebarMenuSubButton asChild>
-                <Link href={item.href}>{item.name}</Link>
+              <SidebarMenuSubButton asChild isActive={pathname === item.href}>
+                <Link href={item.href} className="whitespace-normal h-auto">{item.name}</Link>
               </SidebarMenuSubButton>
             </SidebarMenuSubItem>
           ))}
@@ -184,14 +187,15 @@ const NavItemWithSubmenu = ({
 
 const NavItem = ({ item }: { item: MenuItem }) => {
   const { icon: Icon, title, submenu, href } = item;
-  const isDashboard = title === 'Dashboard';
+  const pathname = usePathname();
+  const isActive = href === pathname;
 
   if (submenu) {
     return <NavItemWithSubmenu icon={Icon} title={title} submenu={submenu} />;
   }
 
   return (
-    <SidebarMenuButton asChild isActive={isDashboard}>
+    <SidebarMenuButton asChild isActive={isActive}>
       <Link href={href || '#'}>
         <Icon />
         <span>{title}</span>
