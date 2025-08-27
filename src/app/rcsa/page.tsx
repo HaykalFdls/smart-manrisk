@@ -23,6 +23,7 @@ import { Button } from '@/components/ui/button';
 import { getRcsaData, updateRcsaData, type RCSAData } from '@/lib/rcsa-data';
 import { useToast } from '@/hooks/use-toast';
 import { Bot, Save, Sparkles } from 'lucide-react';
+import { Textarea } from '@/components/ui/textarea';
 
 const jenisRisikoOptions = [
   'Risiko Kredit',
@@ -186,8 +187,14 @@ export default function Rcsapage() {
                 {data.map((row, index) => (
                   <TableRow key={row.no}>
                     <TableCell className="text-center">{row.no}</TableCell>
-                    <TableCell className="font-medium">
-                      {row.potensiRisiko}
+                    <TableCell>
+                      <Textarea
+                        value={row.potensiRisiko}
+                        onChange={(e) =>
+                          handleInputChange(index, 'potensiRisiko', e.target.value)
+                        }
+                        className="min-h-[60px]"
+                      />
                     </TableCell>
                     <TableCell>
                        <Select
