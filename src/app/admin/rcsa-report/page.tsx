@@ -2,16 +2,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
-import { Card, CardContent } from '@/components/ui/card';
-import { getAllRcsaSubmissions, type RCSASubmission } from '@/lib/rcsa-data';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { getAllRcsaSubmissions, type RCSASubmission, type RCSAData } from '@/lib/rcsa-data';
 import { Button } from '@/components/ui/button';
 import { RefreshCw } from 'lucide-react';
 import {
@@ -20,14 +12,68 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '@/components/ui/accordion';
+import { Separator } from '@/components/ui/separator';
+import { Badge } from '@/components/ui/badge';
 
 const getLevelFromBesaran = (besaran: number | null | undefined) => {
-  if (besaran === null || besaran === undefined) return { label: '-', className: '' };
-  if (besaran >= 20) return { label: 'Sangat Tinggi', className: 'bg-red-700 text-white' };
-  if (besaran >= 12) return { label: 'Tinggi', className: 'bg-red-500 text-white' };
-  if (besaran >= 5) return { label: 'Menengah', className: 'bg-yellow-400 text-black' };
-  return { label: 'Rendah', className: 'bg-green-500 text-white' };
+  if (besaran === null || besaran === undefined) return { label: '-', variant: 'secondary' as const };
+  if (besaran >= 20) return { label: 'Sangat Tinggi', variant: 'destructive' as const };
+  if (besaran >= 12) return { label: 'Tinggi', variant: 'destructive' as const };
+  if (besaran >= 5) return { label: 'Menengah', variant: 'secondary' as const };
+  return { label: 'Rendah', variant: 'outline' as const };
 };
+
+const DetailRow = ({ label, value }: { label: string, value: React.ReactNode }) => (
+    <div className="flex justify-between py-2">
+        <p className="text-sm text-muted-foreground">{label}</p>
+        <p className="text-sm font-medium text-right">{value || '-'}</p>
+    </div>
+);
+
+const RiskReportDetail = ({ data }: { data: RCSAData }) => {
+    const besaranInheren = (data.dampakInheren && data.frekuensiInheren) ? data.dampakInheren * data.frekuensiInheren : null;
+    const levelInheren = getLevelFromBesaran(besaranInheren);
+    const besaranResidual = (data.dampakResidual && data.kemungkinanResidual) ? data.dampakResidual * data.kemungkinanResidual : null;
+    const levelResidual = getLevelFromBesaran(besaranResidual);
+
+    return (
+        <Card className="mb-4">
+            <CardHeader>
+                <p className="text-sm font-semibold text-primary">{data.unitKerja}</p>
+                <CardTitle className="text-lg">Risiko #{data.no}: {data.potensiRisiko}</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4 text-sm">
+                <DetailRow label="Jenis Risiko" value={data.jenisRisiko} />
+                <DetailRow label="Penyebab Risiko" value={<span className="whitespace-normal">{data.penyebabRisiko}</span>} />
+                <Separator/>
+                <h4 className="font-semibold pt-2">Risiko Inheren</h4>
+                <DetailRow label="Dampak" value={data.dampakInheren} />
+                <DetailRow label="Frekuensi" value={data.frekuensiInheren} />
+                <DetailRow label="Besaran" value={besaranInheren} />
+                <DetailRow label="Level" value={<Badge variant={levelInheren.variant}>{levelInheren.label}</Badge>} />
+                <Separator/>
+                 <h4 className="font-semibold pt-2">Pengendalian</h4>
+                 <p className="text-sm text-right">{data.pengendalian || '-'}</p>
+                <Separator/>
+                <h4 className="font-semibold pt-2">Risiko Residual</h4>
+                <DetailRow label="Dampak" value={data.dampakResidual} />
+                <DetailRow label="Kemungkinan" value={data.kemungkinanResidual} />
+                <DetailRow label="Besaran" value={besaranResidual} />
+                <DetailRow label="Level" value={<Badge variant={levelResidual.variant}>{levelResidual.label}</Badge>} />
+                 <Separator/>
+                 <DetailRow label="Penilaian Efektivitas Kontrol" value={data.penilaianKontrol} />
+                 <DetailRow label="Action Plan / Mitigasi" value={<span className="whitespace-normal">{data.actionPlan}</span>} />
+                 <DetailRow label="PIC" value={data.pic} />
+            </CardContent>
+            {data.keterangan && (
+                <CardFooter>
+                    <p className="text-xs text-muted-foreground"><strong>Keterangan:</strong> {data.keterangan}</p>
+                </CardFooter>
+            )}
+        </Card>
+    )
+}
+
 
 export default function RcsaReportPage() {
   const [submissions, setSubmissions] = useState<RCSASubmission[]>([]);
@@ -64,106 +110,34 @@ export default function RcsaReportPage() {
         </Button>
       </div>
 
-      <Card>
-        <CardContent className="p-4">
-          {submissions.length === 0 ? (
-            <div className="text-center text-muted-foreground py-12">
-              Belum ada laporan RCSA yang dikirim.
-            </div>
-          ) : (
-            <Accordion type="single" collapsible className="w-full">
-              {submissions.map((submission, index) => (
-                <AccordionItem value={`item-${index}`} key={submission.id}>
-                  <AccordionTrigger>
-                    <div className="flex justify-between w-full pr-4">
-                        <span>Laporan #{submission.id}</span>
-                        <span className="text-sm text-muted-foreground">
-                            Dikirim pada: {new Date(submission.submittedAt).toLocaleString('id-ID')}
-                        </span>
-                    </div>
-                  </AccordionTrigger>
-                  <AccordionContent>
-                    <div className="overflow-x-auto">
-                      <Table className="min-w-max whitespace-nowrap">
-                         <TableHeader>
-                            <TableRow>
-                            <TableHead rowSpan={2} className="w-[40px] text-center sticky left-0 bg-card z-10 border-r">No.</TableHead>
-                            <TableHead rowSpan={2} className="min-w-[200px] sticky left-12 bg-card z-10 border-r">Unit Kerja</TableHead>
-                            <TableHead rowSpan={2} className="min-w-[300px] sticky left-64 bg-card z-10 border-r">Potensi Risiko</TableHead>
-                            <TableHead rowSpan={2} className="min-w-[200px] border-r">Jenis Risiko</TableHead>
-                            <TableHead rowSpan={2} className="min-w-[250px] border-r">Penyebab Risiko</TableHead>
-                            
-                            <TableHead colSpan={4} className="text-center border-x bg-blue-50">RISIKO INHEREN</TableHead>
-                            
-                            <TableHead rowSpan={2} className="min-w-[250px] border-r">Pengendalian/Mitigasi Risiko</TableHead>
-                            
-                            <TableHead colSpan={4} className="text-center border-x bg-green-50">RISIKO RESIDUAL</TableHead>
-                            
-                            <TableHead rowSpan={2} className="min-w-[180px] border-r">Penilaian Tingkat Efektivitas Kontrol</TableHead>
-                            <TableHead rowSpan={2} className="min-w-[250px] border-r">Action Plan/Mitigasi</TableHead>
-                            <TableHead rowSpan={2} className="min-w-[150px] border-r">PIC</TableHead>
-                            <TableHead rowSpan={2} className="min-w-[250px]">Keterangan</TableHead>
-                            </TableRow>
-                            <TableRow>
-                            {/* RISIKO INHEREN */}
-                            <TableHead className="w-[80px] text-center border-x bg-blue-50">Dampak</TableHead>
-                            <TableHead className="w-[80px] text-center bg-blue-50">Frekuensi</TableHead>
-                            <TableHead className="w-[80px] text-center border-x bg-blue-50">Besaran</TableHead>
-                            <TableHead className="w-[120px] text-center bg-blue-50">Level</TableHead>
-                            {/* RISIKO RESIDUAL */}
-                            <TableHead className="w-[80px] text-center border-x bg-green-50">Dampak</TableHead>
-                            <TableHead className="w-[110px] text-center bg-green-50">Kemungkinan</TableHead>
-                            <TableHead className="w-[80px] text-center border-x bg-green-50">Besaran</TableHead>
-                            <TableHead className="w-[120px] text-center bg-green-50">Level</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                          {submission.data.map((row) => {
-                             const besaranInheren = (row.dampakInheren && row.frekuensiInheren) ? row.dampakInheren * row.frekuensiInheren : null;
-                             const levelInheren = getLevelFromBesaran(besaranInheren).label;
-                             const besaranResidual = (row.dampakResidual && row.kemungkinanResidual) ? row.dampakResidual * row.kemungkinanResidual : null;
-                             const levelResidual = getLevelFromBesaran(besaranResidual).label;
-                             return (
-                                <TableRow key={row.no}>
-                                    <TableCell className="text-center sticky left-0 bg-card z-10 border-r">{row.no}</TableCell>
-                                    <TableCell className="font-medium sticky left-12 bg-card z-10 border-r">{row.unitKerja}</TableCell>
-                                    <TableCell className="sticky left-64 bg-card z-10 border-r whitespace-normal">{row.potensiRisiko}</TableCell>
-                                    <TableCell>{row.jenisRisiko || '-'}</TableCell>
-                                    <TableCell className="whitespace-normal">{row.penyebabRisiko || '-'}</TableCell>
-                                    <TableCell className="text-center">{row.dampakInheren || '-'}</TableCell>
-                                    <TableCell className="text-center">{row.frekuensiInheren || '-'}</TableCell>
-                                    <TableCell className="text-center font-bold">{besaranInheren || '-'}</TableCell>
-                                    <TableCell className="text-center">
-                                        <span className={`px-2 py-1 rounded text-xs font-semibold ${getLevelFromBesaran(besaranInheren).className}`}>
-                                        {levelInheren || '-'}
-                                        </span>
-                                    </TableCell>
-                                    <TableCell className="whitespace-normal">{row.pengendalian || '-'}</TableCell>
-                                    <TableCell className="text-center">{row.dampakResidual || '-'}</TableCell>
-                                    <TableCell className="text-center">{row.kemungkinanResidual || '-'}</TableCell>
-                                    <TableCell className="text-center font-bold">{besaranResidual || '-'}</TableCell>
-                                    <TableCell className="text-center">
-                                        <span className={`px-2 py-1 rounded text-xs font-semibold ${getLevelFromBesaran(besaranResidual).className}`}>
-                                        {levelResidual || '-'}
-                                        </span>
-                                    </TableCell>
-                                    <TableCell>{row.penilaianKontrol || '-'}</TableCell>
-                                    <TableCell className="whitespace-normal">{row.actionPlan || '-'}</TableCell>
-                                    <TableCell>{row.pic || '-'}</TableCell>
-                                    <TableCell className="whitespace-normal">{row.keterangan || '-'}</TableCell>
-                                </TableRow>
-                             );
-                          })}
-                        </TableBody>
-                      </Table>
-                    </div>
-                  </AccordionContent>
-                </AccordionItem>
-              ))}
-            </Accordion>
-          )}
-        </CardContent>
-      </Card>
+      <div>
+        {submissions.length === 0 ? (
+          <div className="text-center text-muted-foreground py-12">
+            Belum ada laporan RCSA yang dikirim.
+          </div>
+        ) : (
+          <Accordion type="single" collapsible className="w-full space-y-4">
+            {submissions.map((submission, index) => (
+              <AccordionItem value={`item-${index}`} key={submission.id} className="border rounded-lg bg-card">
+                <AccordionTrigger className="px-6 py-4 hover:no-underline">
+                  <div className="flex justify-between w-full">
+                      <span className="font-semibold">Laporan #{submission.id}</span>
+                      <span className="text-sm text-muted-foreground">
+                          Dikirim pada: {new Date(submission.submittedAt).toLocaleString('id-ID')}
+                      </span>
+                  </div>
+                </AccordionTrigger>
+                <AccordionContent className="px-6 pt-0">
+                    <Separator className="mb-4" />
+                    {submission.data.map(item => (
+                        <RiskReportDetail key={item.no} data={item} />
+                    ))}
+                </AccordionContent>
+              </AccordionItem>
+            ))}
+          </Accordion>
+        )}
+      </div>
     </div>
   );
 }

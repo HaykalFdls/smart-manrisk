@@ -2,21 +2,15 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { getRcsaData, updateRcsaData, type RCSAData } from '@/lib/rcsa-data';
 import { useToast } from '@/hooks/use-toast';
 import { PlusCircle, Save, Trash2 } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Separator } from '@/components/ui/separator';
 
 type RCSAAdminData = Pick<RCSAData, 'no' | 'unitKerja' | 'potensiRisiko' | 'keterangan'>;
 
@@ -65,9 +59,8 @@ export default function RcsaManagementPage() {
       const existingData = getRcsaData();
       
       const updatedNos = new Set(data.map(d => d.no));
-      const removedData = existingData.filter(d => !updatedNos.has(d.no));
 
-      const finalData = data.map((adminRow, index) => {
+      const finalData = data.map((adminRow) => {
           const existingRow = existingData.find(d => d.no === adminRow.no) || {};
           return {
               ...existingRow,
@@ -118,63 +111,55 @@ export default function RcsaManagementPage() {
         </div>
       </div>
 
-      <Card>
-        <CardContent className="p-0">
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="w-[50px] text-center">No.</TableHead>
-                  <TableHead className="min-w-[200px]">Unit Kerja</TableHead>
-                  <TableHead className="min-w-[400px]">
-                    Potensi Risiko (Pertanyaan untuk User)
-                  </TableHead>
-                   <TableHead className="min-w-[300px]">Keterangan (Opsional)</TableHead>
-                   <TableHead className="w-[50px]"></TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {data.map((row, index) => (
-                  <TableRow key={row.no}>
-                    <TableCell className="text-center">{index + 1}</TableCell>
-                     <TableCell>
-                      <Input
-                        value={row.unitKerja || ''}
-                        onChange={(e) =>
-                          handleInputChange(index, 'unitKerja', e.target.value)
-                        }
-                      />
-                    </TableCell>
-                    <TableCell>
-                      <Textarea
-                        value={row.potensiRisiko}
-                        onChange={(e) =>
-                          handleInputChange(index, 'potensiRisiko', e.target.value)
-                        }
-                        className="min-h-[60px]"
-                      />
-                    </TableCell>
-                     <TableCell>
-                      <Textarea
-                        value={row.keterangan || ''}
-                        onChange={(e) =>
-                          handleInputChange(index, 'keterangan', e.target.value)
-                        }
-                         className="min-h-[60px]"
-                      />
-                    </TableCell>
-                    <TableCell>
-                        <Button variant="ghost" size="icon" onClick={() => handleDelete(index)}>
-                            <Trash2 className="h-4 w-4 text-red-500" />
-                        </Button>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
-        </CardContent>
-      </Card>
+      <div className="space-y-6">
+        {data.map((row, index) => (
+          <Card key={row.no}>
+            <CardHeader>
+              <CardTitle>Master Risiko #{index + 1}</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div>
+                <Label htmlFor={`unit-kerja-${index}`}>Unit Kerja</Label>
+                <Input
+                  id={`unit-kerja-${index}`}
+                  value={row.unitKerja || ''}
+                  onChange={(e) =>
+                    handleInputChange(index, 'unitKerja', e.target.value)
+                  }
+                />
+              </div>
+              <div>
+                <Label htmlFor={`potensi-risiko-${index}`}>Potensi Risiko (Pertanyaan untuk User)</Label>
+                <Textarea
+                  id={`potensi-risiko-${index}`}
+                  value={row.potensiRisiko}
+                  onChange={(e) =>
+                    handleInputChange(index, 'potensiRisiko', e.target.value)
+                  }
+                  className="min-h-[80px]"
+                />
+              </div>
+              <div>
+                <Label htmlFor={`keterangan-${index}`}>Keterangan (Opsional, untuk User)</Label>
+                <Textarea
+                  id={`keterangan-${index}`}
+                  value={row.keterangan || ''}
+                  onChange={(e) =>
+                    handleInputChange(index, 'keterangan', e.target.value)
+                  }
+                  className="min-h-[60px]"
+                />
+              </div>
+            </CardContent>
+            <CardFooter className="flex justify-end bg-muted/50 py-3 px-6 border-t">
+                 <Button variant="destructive" size="sm" onClick={() => handleDelete(index)}>
+                    <Trash2 className="mr-2 h-4 w-4" />
+                    Hapus
+                </Button>
+            </CardFooter>
+          </Card>
+        ))}
+      </div>
     </div>
   );
 }
