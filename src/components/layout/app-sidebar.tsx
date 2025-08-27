@@ -31,7 +31,6 @@ import {
   ChevronDown,
   Settings,
   LogOut,
-  SlidersHorizontal,
   type LucideIcon,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -138,19 +137,9 @@ const mainNavItems: MenuItem[] = [
   { icon: Gavel, title: 'Governance & Compliance', href: '#' },
 ];
 
-const adminNavItems: MenuItem[] = [
-    {
-        icon: SlidersHorizontal,
-        title: 'Admin Panel',
-        submenu: [
-            { name: 'Manage RCSA', href: '/admin/rcsa' },
-        ],
-    },
-];
-
 const footerNavItems: MenuItem[] = [
   { icon: Settings, title: 'Settings', href: '#' },
-  { icon: LogOut, title: 'Logout', href: '#' },
+  { icon: LogOut, title: 'Logout', href: '/login' },
 ];
 
 const NavItemWithSubmenu = ({
@@ -239,14 +228,6 @@ export function AppSidebar() {
         <SidebarContent>
           <SidebarMenu>
             {mainNavItems.map((item) => (
-              <SidebarMenuItem key={item.title}>
-                <NavItem item={item} />
-              </SidebarMenuItem>
-            ))}
-             <SidebarMenuItem className="mt-4 border-t border-sidebar-border pt-4">
-                <span className="px-4 text-xs text-sidebar-foreground/50">Admin</span>
-            </SidebarMenuItem>
-             {adminNavItems.map((item) => (
               <SidebarMenuItem key={item.title}>
                 <NavItem item={item} />
               </SidebarMenuItem>

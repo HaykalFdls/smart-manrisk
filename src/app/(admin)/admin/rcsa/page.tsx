@@ -32,7 +32,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { useToast } from '@/hooks/use-toast';
-import { FilePlus, Edit, Trash2, MoreHorizontal } from 'lucide-react';
+import { FilePlus, Edit, Trash2 } from 'lucide-react';
 import { getRcsaData, updateRcsaData, type RCSAData } from '@/lib/rcsa-data';
 
 export default function AdminRcsasPage() {

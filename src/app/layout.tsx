@@ -1,7 +1,6 @@
 import type { Metadata } from 'next';
 import './globals.css';
-import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar';
-import { AppSidebar } from '@/components/layout/app-sidebar';
+
 import { Toaster } from '@/components/ui/toaster';
 import { Inter } from 'next/font/google';
 
@@ -19,15 +18,8 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={`${inter.className} antialiased`}>
-        <SidebarProvider>
-          <div className="flex min-h-screen">
-            <AppSidebar />
-            <SidebarInset>{children}</SidebarInset>
-          </div>
-        </SidebarProvider>
         <Toaster />
       </body>
-    </html>
+    
   );
 }
