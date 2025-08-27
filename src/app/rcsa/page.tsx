@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -23,6 +24,27 @@ import { getRcsaData, updateRcsaData, type RCSAData } from '@/lib/rcsa-data';
 import { useToast } from '@/hooks/use-toast';
 import { Bot, Save, Sparkles } from 'lucide-react';
 
+const jenisRisikoOptions = [
+  'Risiko Kredit',
+  'Risiko Pasar',
+  'Risiko Likuiditas',
+  'Risiko Operasional',
+  'Risiko Hukum',
+  'Risiko Reputasi',
+  'Risiko Strategis',
+  'Risiko Kepatuhan',
+  'Risiko Imbal Hasil',
+  'Risiko Investasi',
+];
+
+const getLevelFromBesaran = (besaran: number | null) => {
+  if (besaran === null) return { label: '-', className: '' };
+  if (besaran >= 20) return { label: 'Sangat Tinggi', className: 'bg-red-700 text-white' };
+  if (besaran >= 12) return { label: 'Tinggi', className: 'bg-red-500 text-white' };
+  if (besaran >= 5) return { label: 'Menengah', className: 'bg-yellow-400 text-black' };
+  return { label: 'Rendah', className: 'bg-green-500 text-white' };
+};
+
 export default function Rcsapage() {
   const { toast } = useToast();
   const [data, setData] = useState<RCSAData[]>(getRcsaData());
@@ -36,8 +58,27 @@ export default function Rcsapage() {
     value: string | number | null
   ) => {
     const newData = [...data];
+    const updatedRow = { ...newData[index] };
+
     // @ts-ignore
-    newData[index][field] = value;
+    updatedRow[field] = value;
+
+    // Recalculate besaran and level if dampak or frekuensi changes
+    if (field === 'dampakInheren' || field === 'frekuensiInheren') {
+        const dampak = field === 'dampakInheren' ? (value as number) : updatedRow.dampakInheren;
+        const frekuensi = field === 'frekuensiInheren' ? (value as number) : updatedRow.frekuensiInheren;
+
+        if (dampak !== null && frekuensi !== null && dampak > 0 && frekuensi > 0) {
+            const besaran = dampak * frekuensi;
+            updatedRow.besaranInheren = besaran;
+            updatedRow.levelInheren = getLevelFromBesaran(besaran).label;
+        } else {
+            updatedRow.besaranInheren = null;
+            updatedRow.levelInheren = null;
+        }
+    }
+    
+    newData[index] = updatedRow;
     setData(newData);
   };
 
@@ -61,16 +102,23 @@ export default function Rcsapage() {
     setTimeout(() => {
       const newData = [...data];
       const currentRisk = newData[index];
+      
+      const dampak = 4;
+      const frekuensi = 2;
+      const besaran = dampak * frekuensi;
+
       newData[index] = {
         ...currentRisk,
-        jenisRisiko: 'Operasional (AI)',
+        jenisRisiko: 'Risiko Operasional',
         penyebabRisiko: 'Human error teridentifikasi (AI)',
-        dampakInheren: 4,
-        frekuensiInheren: 2,
+        dampakInheren: dampak,
+        frekuensiInheren: frekuensi,
+        besaranInheren: besaran,
+        levelInheren: getLevelFromBesaran(besaran).label,
         pengendalian: 'Verifikasi Ganda (AI)',
         dampakResidual: 2,
         kemungkinanResidual: 1,
-        penilaianKontrol: 'Cukup Efektif (AI)',
+        penilaianKontrol: 'Cukup Efektif',
         actionPlan: 'Otomatisasi proses verifikasi (AI)',
         pic: 'AI Assistant',
       };
@@ -109,16 +157,18 @@ export default function Rcsapage() {
             <Table className="min-w-max">
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-[40px]">No.</TableHead>
+                  <TableHead className="w-[40px] text-center">No.</TableHead>
                   <TableHead className="min-w-[250px]">
                     Potensi Risiko
                   </TableHead>
-                  <TableHead className="w-[150px]">Jenis Risiko</TableHead>
+                  <TableHead className="min-w-[200px]">Jenis Risiko</TableHead>
                   <TableHead className="min-w-[200px]">
                     Penyebab Risiko
                   </TableHead>
-                  <TableHead className="w-[80px]">Dampak Inheren</TableHead>
-                  <TableHead className="w-[80px]">Frekuensi Inheren</TableHead>
+                  <TableHead className="w-[80px] text-center">Dampak Inheren</TableHead>
+                  <TableHead className="w-[80px] text-center">Frekuensi Inheren</TableHead>
+                  <TableHead className="w-[80px] text-center">Besaran Inheren</TableHead>
+                  <TableHead className="w-[120px] text-center">Level Inheren</TableHead>
                   <TableHead className="min-w-[200px]">Pengendalian</TableHead>
                   <TableHead className="w-[80px]">Dampak Residual</TableHead>
                   <TableHead className="w-[80px]">
@@ -136,30 +186,25 @@ export default function Rcsapage() {
                 {data.map((row, index) => (
                   <TableRow key={row.no}>
                     <TableCell className="text-center">{row.no}</TableCell>
-                    <TableCell>
-                      <Input
-                        value={row.potensiRisiko}
-                        onChange={(e) =>
-                          handleInputChange(
-                            index,
-                            'potensiRisiko',
-                            e.target.value
-                          )
-                        }
-                        className="border-none"
-                      />
+                    <TableCell className="font-medium">
+                      {row.potensiRisiko}
                     </TableCell>
                     <TableCell>
-                      <Input
+                       <Select
                         value={row.jenisRisiko || ''}
-                        onChange={(e) =>
-                          handleInputChange(
-                            index,
-                            'jenisRisiko',
-                            e.target.value
-                          )
+                        onValueChange={(value) =>
+                          handleInputChange(index, 'jenisRisiko', value)
                         }
-                      />
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Pilih jenis risiko..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {jenisRisikoOptions.map(option => (
+                             <SelectItem key={option} value={option}>{option}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </TableCell>
                     <TableCell>
                       <Input
@@ -176,6 +221,8 @@ export default function Rcsapage() {
                     <TableCell>
                       <Input
                         type="number"
+                        min="1"
+                        max="5"
                         value={row.dampakInheren || ''}
                         onChange={(e) =>
                           handleInputChange(
@@ -184,11 +231,14 @@ export default function Rcsapage() {
                             parseInt(e.target.value) || null
                           )
                         }
+                        className="text-center"
                       />
                     </TableCell>
                     <TableCell>
                       <Input
                         type="number"
+                        min="1"
+                        max="5"
                         value={row.frekuensiInheren || ''}
                         onChange={(e) =>
                           handleInputChange(
@@ -197,7 +247,16 @@ export default function Rcsapage() {
                             parseInt(e.target.value) || null
                           )
                         }
+                        className="text-center"
                       />
+                    </TableCell>
+                    <TableCell className="text-center font-bold">
+                        {row.besaranInheren || '-'}
+                    </TableCell>
+                    <TableCell className="text-center">
+                        <span className={`px-2 py-1 rounded text-xs font-semibold ${getLevelFromBesaran(row.besaranInheren).className}`}>
+                           {getLevelFromBesaran(row.besaranInheren).label}
+                        </span>
                     </TableCell>
                     <TableCell>
                       <Input

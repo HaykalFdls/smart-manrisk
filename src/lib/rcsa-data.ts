@@ -6,6 +6,8 @@ export type RCSAData = {
   penyebabRisiko: string | null;
   dampakInheren: number | null;
   frekuensiInheren: number | null;
+  besaranInheren: number | null; // Ditambahkan
+  levelInheren: string | null; // Ditambahkan
   pengendalian: string | null;
   dampakResidual: number | null;
   kemungkinanResidual: number | null;
@@ -20,10 +22,12 @@ let rcsaDataStore: RCSAData[] = [
   {
     no: 1,
     potensiRisiko: 'Terdapat selisih KAS Teller',
-    jenisRisiko: 'Operasional',
+    jenisRisiko: 'Risiko Operasional',
     penyebabRisiko: 'Human error',
     dampakInheren: 4,
     frekuensiInheren: 1,
+    besaranInheren: 4,
+    levelInheren: 'Rendah',
     pengendalian: 'Rekonsiliasi kas harian',
     dampakResidual: 2,
     kemungkinanResidual: 1,
@@ -35,10 +39,12 @@ let rcsaDataStore: RCSAData[] = [
   {
     no: 2,
     potensiRisiko: 'Terdapat pengisian slip oleh nasabah yang tidak dilakukan dengan benar (tidak lengkap, salah alamat, tidak diverifikasi)',
-    jenisRisiko: 'Operasional',
+    jenisRisiko: 'Risiko Operasional',
     penyebabRisiko: 'Kurangnya pemahaman nasabah',
     dampakInheren: 3,
     frekuensiInheren: 2,
+    besaranInheren: 6,
+    levelInheren: 'Menengah',
     pengendalian: 'Verifikasi ulang oleh teller',
     dampakResidual: 2,
     kemungkinanResidual: 2,
@@ -54,6 +60,8 @@ let rcsaDataStore: RCSAData[] = [
     penyebabRisiko: null,
     dampakInheren: null,
     frekuensiInheren: null,
+    besaranInheren: null,
+    levelInheren: null,
     pengendalian: null,
     dampakResidual: null,
     kemungkinanResidual: null,
@@ -69,6 +77,8 @@ let rcsaDataStore: RCSAData[] = [
     penyebabRisiko: null,
     dampakInheren: null,
     frekuensiInheren: null,
+    besaranInheren: null,
+    levelInheren: null,
     pengendalian: null,
     dampakResidual: null,
     kemungkinanResidual: null,
@@ -84,6 +94,8 @@ let rcsaDataStore: RCSAData[] = [
     penyebabRisiko: null,
     dampakInheren: null,
     frekuensiInheren: null,
+    besaranInheren: null,
+    levelInheren: null,
     pengendalian: null,
     dampakResidual: null,
     kemungkinanResidual: null,
