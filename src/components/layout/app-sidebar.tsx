@@ -17,7 +17,6 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from '@/components/ui/collapsible';
-import { Button } from '@/components/ui/button';
 import {
   LayoutDashboard,
   GitMerge,
@@ -29,21 +28,86 @@ import {
   FileText,
   Gavel,
   ChevronDown,
-  User,
   Settings,
   LogOut,
+  type LucideIcon,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
 
+type SubMenuItem = {
+  name: string;
+  href: string;
+};
+
+type MenuItem = {
+  icon: LucideIcon;
+  title: string;
+  href?: string;
+  submenu?: SubMenuItem[];
+};
+
+const mainNavItems: MenuItem[] = [
+  { icon: LayoutDashboard, title: 'Dashboard', href: '#' },
+  {
+    icon: GitMerge,
+    title: 'Risk Integration',
+    submenu: [
+      { name: 'Overview', href: '#' },
+      { name: 'Data Sources', href: '#' },
+    ],
+  },
+  {
+    icon: Landmark,
+    title: 'Credit & Investment',
+    submenu: [
+      { name: 'Portfolio', href: '#' },
+      { name: 'Counterparties', href: '#' },
+    ],
+  },
+  { icon: Waves, title: 'Liquidity & Market', href: '#' },
+  {
+    icon: ShieldAlert,
+    title: 'Operational Risk',
+    submenu: [
+      { name: 'Incidents', href: '#' },
+      { name: 'KRI', href: '#' },
+    ],
+  },
+  {
+    icon: ServerCog,
+    title: 'IT Risk Management',
+    submenu: [
+      { name: 'Cybersecurity', href: '#' },
+      { name: 'System Audits', href: '#' },
+    ],
+  },
+  {
+    icon: ShieldCheck,
+    title: 'BCMS',
+    submenu: [
+      { name: 'Plans', href: '#' },
+      { name: 'Tests', href: '#' },
+    ],
+  },
+  { icon: FileText, title: 'Regulation Update', href: '#' },
+  { icon: Gavel, title: 'Governance & Compliance', href: '#' },
+];
+
+const footerNavItems: MenuItem[] = [
+    { icon: Settings, title: 'Settings', href: '#' },
+    { icon: LogOut, title: 'Logout', href: '#' }
+];
+
+
 const NavItemWithSubmenu = ({
-  icon,
+  icon: Icon,
   title,
   submenu,
 }: {
-  icon: React.ReactNode;
+  icon: LucideIcon;
   title: string;
-  submenu: { name: string; href: string }[];
+  submenu: SubMenuItem[];
 }) => {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -52,7 +116,7 @@ const NavItemWithSubmenu = ({
       <CollapsibleTrigger asChild>
         <SidebarMenuButton className="justify-between w-full">
           <div className="flex items-center gap-2">
-            {icon}
+            <Icon />
             <span>{title}</span>
           </div>
           <ChevronDown
@@ -78,6 +142,24 @@ const NavItemWithSubmenu = ({
   );
 };
 
+const NavItem = ({ item }: { item: MenuItem }) => {
+  const { icon: Icon, title, submenu, href } = item;
+  const isDashboard = title === 'Dashboard';
+
+  if (submenu) {
+    return <NavItemWithSubmenu icon={Icon} title={title} submenu={submenu} />;
+  }
+
+  return (
+    <SidebarMenuButton asChild isActive={isDashboard}>
+      <Link href={href || '#'}>
+        <Icon />
+        <span>{title}</span>
+      </Link>
+    </SidebarMenuButton>
+  );
+};
+
 export function AppSidebar() {
   return (
     <Sidebar collapsible="icon">
@@ -99,87 +181,20 @@ export function AppSidebar() {
         </SidebarHeader>
         <SidebarContent>
           <SidebarMenu>
-            <SidebarMenuItem>
-              <SidebarMenuButton isActive>
-                <LayoutDashboard />
-                <span>Dashboard</span>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-            
-            <NavItemWithSubmenu 
-              icon={<GitMerge />}
-              title="Risk Integration"
-              submenu={[
-                { name: 'Overview', href: '#' },
-                { name: 'Data Sources', href: '#' },
-              ]}
-            />
-            <NavItemWithSubmenu 
-              icon={<Landmark />}
-              title="Credit & Investment"
-              submenu={[
-                { name: 'Portfolio', href: '#' },
-                { name: 'Counterparties', href: '#' },
-              ]}
-            />
-             <SidebarMenuItem>
-              <SidebarMenuButton>
-                <Waves />
-                <span>Liquidity & Market</span>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-            <NavItemWithSubmenu 
-              icon={<ShieldAlert />}
-              title="Operational Risk"
-              submenu={[
-                { name: 'Incidents', href: '#' },
-                { name: 'KRI', href: '#' },
-              ]}
-            />
-            <NavItemWithSubmenu 
-              icon={<ServerCog />}
-              title="IT Risk Management"
-              submenu={[
-                { name: 'Cybersecurity', href: '#' },
-                { name: 'System Audits', href: '#' },
-              ]}
-            />
-            <NavItemWithSubmenu 
-              icon={<ShieldCheck />}
-              title="BCMS"
-              submenu={[
-                { name: 'Plans', href: '#' },
-                { name: 'Tests', href: '#' },
-              ]}
-            />
-             <SidebarMenuItem>
-              <SidebarMenuButton>
-                <FileText />
-                <span>Regulation Update</span>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-            <SidebarMenuItem>
-              <SidebarMenuButton>
-                <Gavel />
-                <span>Governance & Compliance</span>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
+            {mainNavItems.map((item) => (
+              <SidebarMenuItem key={item.title}>
+                <NavItem item={item} />
+              </SidebarMenuItem>
+            ))}
           </SidebarMenu>
         </SidebarContent>
         <SidebarFooter>
             <SidebarMenu>
-                <SidebarMenuItem>
-                    <SidebarMenuButton>
-                        <Settings/>
-                        <span>Settings</span>
-                    </SidebarMenuButton>
-                </SidebarMenuItem>
-                <SidebarMenuItem>
-                    <SidebarMenuButton>
-                        <LogOut/>
-                        <span>Logout</span>
-                    </SidebarMenuButton>
-                </SidebarMenuItem>
+                 {footerNavItems.map((item) => (
+                    <SidebarMenuItem key={item.title}>
+                        <NavItem item={item} />
+                    </SidebarMenuItem>
+                ))}
             </SidebarMenu>
         </SidebarFooter>
       </div>
