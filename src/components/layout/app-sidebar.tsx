@@ -82,7 +82,15 @@ const mainNavItems: MenuItem[] = [
       { name: 'ATMR Risiko Kredit', href: '#' },
     ],
   },
-  { icon: Waves, title: 'Liquidity & Market', href: '#' },
+  {
+    icon: Waves,
+    title: 'Liquidity & Market',
+    submenu: [
+      { name: 'Dashboard & Report', href: '#' },
+      { name: 'Stresstest Likuiditas', href: '#' },
+      { name: 'ATMR Risiko Pasar', href: '#' },
+    ],
+  },
   {
     icon: ShieldAlert,
     title: 'Operational Risk',
@@ -95,20 +103,39 @@ const mainNavItems: MenuItem[] = [
     icon: ServerCog,
     title: 'IT Risk Management',
     submenu: [
-      { name: 'Cybersecurity', href: '#' },
-      { name: 'System Audits', href: '#' },
+      { name: 'Dashboard & Report', href: '#' },
+      { name: 'IT Risk Profile', href: '#' },
     ],
   },
   {
     icon: ShieldCheck,
     title: 'BCMS',
     submenu: [
-      { name: 'Plans', href: '#' },
-      { name: 'Tests', href: '#' },
+      { name: 'Dashboard & Report', href: '#' },
+      { name: 'BIA & Risk Assessment', href: '#' },
+      { name: 'BCP & DRP', href: '#' },
+      { name: 'Test & Maintenance', href: '#' },
     ],
   },
-  { icon: FileText, title: 'Regulation Update', href: '#' },
-  { icon: Gavel, title: 'Governance & Compliance', href: '#' },
+  {
+    icon: FileText,
+    title: 'Regulation Update',
+    submenu: [
+      { name: 'Dashboard & Report', href: '#' },
+      { name: 'Internal', href: '#' },
+      { name: 'External', href: '#' },
+    ],
+  },
+  {
+    icon: Gavel,
+    title: 'Governance & Compliance',
+    submenu: [
+      { name: 'Dashboard & Report', href: '#' },
+      { name: 'GCG Self-Assessment', href: '#' },
+      { name: 'Whistleblowing System (WBS)', href: '#' },
+      { name: 'Anti-Fraud Strategy (SAF)', href: '#' },
+    ],
+  },
 ];
 
 const footerNavItems: MenuItem[] = [
