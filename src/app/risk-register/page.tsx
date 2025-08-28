@@ -7,11 +7,12 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-  CardFooter,
 } from '@/components/ui/card';
 import { useRouter } from 'next/navigation';
 import { Cpu, Landmark, Gavel, Users, ClipboardList, ArrowRight, Shield, Building, BarChart, AreaChart, DollarSign, Briefcase, FileText, Scale, Handshake, Search, Lightbulb, UserCheck, FolderGit2, Coins } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Separator } from '@/components/ui/separator';
 
 const divisionData: { division: string; total: number; Icon: LucideIcon; description: string }[] = [
   {
@@ -149,33 +150,40 @@ export default function RiskRegisterPage() {
         <h1 className="text-3xl font-bold tracking-tight">Risk Register</h1>
         <p className="text-muted-foreground">Pilih divisi untuk melihat detail risiko operasional.</p>
       </div>
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-        {divisionData.map(({ division, total, Icon, description }) => (
-          <Card
-            key={division}
-            className="cursor-pointer transition-all hover:shadow-lg hover:-translate-y-1 flex flex-col"
-            onClick={() => handleDivisionClick(division)}
-          >
-            <CardHeader className="flex flex-row items-start gap-4 space-y-0">
-                <div className="rounded-lg bg-primary p-3 text-primary-foreground">
+      <Card>
+        <CardHeader>
+          <CardTitle>Kantor Pusat</CardTitle>
+          <CardDescription>Daftar divisi dan unit kerja di bawah kantor pusat.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            {divisionData.map(({ division, total, Icon, description }, index) => (
+              <div key={division}>
+                <div
+                  className="flex items-center gap-4 rounded-lg p-3 cursor-pointer transition-colors hover:bg-accent"
+                  onClick={() => handleDivisionClick(division)}
+                >
+                  <div className="rounded-lg bg-primary/10 p-3 text-primary">
                     <Icon className="h-6 w-6" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="font-semibold">{division.replace(/Divisi|Desk/g, '').trim()}</p>
+                    <p className="text-sm text-muted-foreground">{description}</p>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <div className="text-right">
+                      <p className="font-bold text-lg">{total}</p>
+                      <p className="text-xs text-muted-foreground">Risiko</p>
+                    </div>
+                    <ArrowRight className="h-5 w-5 text-muted-foreground" />
+                  </div>
                 </div>
-                <div className="flex-1">
-                    <CardTitle className="text-base">{division.replace(/Divisi|Desk/g, '').trim()}</CardTitle>
-                    <CardDescription className="text-xs">{description}</CardDescription>
-                </div>
-            </CardHeader>
-            <CardContent className="flex-grow">
-                <div className="text-4xl font-bold">{total}</div>
-                <p className="text-xs text-muted-foreground">Total Risk Event / Potensi Risiko</p>
-            </CardContent>
-            <CardFooter className="flex items-center justify-end text-sm font-medium text-primary hover:underline mt-auto">
-                <span>Lihat Detail</span>
-                <ArrowRight className="ml-2 h-4 w-4" />
-            </CardFooter>
-          </Card>
-        ))}
-      </div>
+                {index < divisionData.length - 1 && <Separator className="mt-4" />}
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }
