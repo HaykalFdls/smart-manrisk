@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect } from 'react';
@@ -89,6 +90,27 @@ const riskSchema = z.object({
   'Keterangan': z.string().optional(),
 });
 
+// Define types for Risk and User based on expected data structure
+type Risk = {
+  id: number;
+  kategori_risiko: string;
+  jenis_risiko: string;
+  risiko_residual: string;
+  pemilik_risiko: number;
+  pemilik_nama?: string; // Will be populated
+  jabatan?: string; // Will be populated
+  divisi?: string; // Will be populated
+  rencana_penanganan: string;
+  'Fraud Indicator': boolean; // Assuming this key might exist, adjust if needed
+  [key: string]: any; // For other properties
+};
+
+type User = {
+  id: number;
+  name: string;
+  division: string;
+  role_name: string;
+};
 
 export default function RiskRegisterPage() {
   const [risks, setRisks] = useState<Risk[]>([]);
@@ -102,30 +124,36 @@ export default function RiskRegisterPage() {
   const [viewingRisk, setViewingRisk] = useState<Risk | null>(null);
   const [deletingRisk, setDeletingRisk] = useState<Risk | null>(null);
 
-  const userNameMap = Object.fromEntries(users.map(u => [u.id, u.name]));
-  const userDivisionMap = Object.fromEntries(users.map(u => [u.id, u.division]));
+  
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const [risksData, usersData] = await Promise.all([
+          fetchRisks(),
+          fetchUsers()
+        ]);
+        
+        const userNameMap = new Map(usersData.map((u: User) => [u.id, u.name]));
+        const userDivisionMap = new Map(usersData.map((u: User) => [u.id, u.division]));
+        const userRoleMap = new Map(usersData.map((u: User) => [u.id, u.role_name]));
 
-
-useEffect(() => {
-  const loadData = async () => {
-    try {
-      const [risksData, usersData] = await Promise.all([
-        fetchRisks(),
-        fetchUsers()
-      ]);
-      console.log("Users:", usersData);
-      console.log("Risks:", risksData);
-      setRisks(risksData);
-      setUsers(usersData);
-    } catch (err) {
-      toast({ title: "Error", description: "Gagal memuat data", variant: "destructive" });
-    } finally {
-      setLoading(false);
-    }
-  };
-  loadData();
-}, []);
-
+        const enrichedRisks = risksData.map((risk: Risk) => ({
+          ...risk,
+          pemilik_nama: userNameMap.get(risk.pemilik_risiko) || 'Unknown User',
+          divisi: userDivisionMap.get(risk.pemilik_risiko) || 'Unknown Division',
+          jabatan: userRoleMap.get(risk.pemilik_risiko) || 'Unknown Role',
+        }));
+        
+        setRisks(enrichedRisks);
+        setUsers(usersData);
+      } catch (err) {
+        toast({ title: "Error", description: "Gagal memuat data", variant: "destructive" });
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadData();
+  }, []);
 
   const form = useForm<z.infer<typeof riskSchema>>({
     resolver: zodResolver(riskSchema),
@@ -145,14 +173,112 @@ useEffect(() => {
     },
   });
 
+  const onSubmit = async (values: z.infer<typeof riskSchema>) => {
+    // This is a simplified mapping. Adjust according to your DB schema.
+    const riskPayload = {
+        kategori_risiko: values['Kategori Risiko/Proses'],
+        skenario_risiko: values['Risk Event/Potensi Risiko'],
+        risiko_residual: values['Risiko Residual'],
+        pemilik_risiko: parseInt(values['Risk Owner']),
+        rencana_penanganan: values['Risk Treatment Plan'],
+        jenis_risiko: values['Jenis Risiko'],
+        root_cause: values['Root Cause'],
+        dampak: values['Dampak'],
+        deskripsi_rencana_penanganan: values['Deskripsi Risk Treatment Plan'],
+        // Assuming fraud indicator and other fields exist in your DB table
+    };
+
+    try {
+        if (editingRisk) {
+            await updateRisk(editingRisk.id, riskPayload);
+            toast({ title: 'Success', description: 'Risk updated successfully.' });
+        } else {
+            await createRisk(riskPayload);
+            toast({ title: 'Success', description: 'Risk added successfully.' });
+        }
+        setIsFormOpen(false);
+        setEditingRisk(null);
+        // Reload data
+        const risksData = await fetchRisks();
+        setRisks(risksData);
+    } catch (error) {
+        toast({ title: 'Error', description: (error as Error).message, variant: 'destructive' });
+    }
+  };
+
+
   const handleDivisionClick = (divisionName: string) => {
     setSelectedDivision(divisionName);
   };
-            </CardContent>
-        </Card>
+  
+  const handleBackClick = () => {
+    setSelectedDivision(null);
+  }
+
+  const handleAddNewRisk = () => {
+    setEditingRisk(null);
+    form.reset(); // Clear form for new entry
+    setIsFormOpen(true);
+  };
+
+  const handleEditRisk = (risk: Risk) => {
+    setEditingRisk(risk);
+    // You'll need to map the risk object back to the form values
+    form.reset({
+        'Kategori Risiko/Proses': risk.kategori_risiko,
+        'Risk Event/Potensi Risiko': risk.skenario_risiko,
+        'Risiko Residual': risk.risiko_residual,
+        'Risk Owner': String(risk.pemilik_risiko),
+        'Risk Treatment Plan': risk.rencana_penanganan,
+        // ... map other fields
+    });
+    setIsFormOpen(true);
+  };
+
+  const handleViewDetails = (risk: Risk) => {
+    setViewingRisk(risk);
+  };
+
+  const handleDeleteRisk = (risk: Risk) => {
+    setDeletingRisk(risk);
+  };
+
+  const confirmDelete = async () => {
+    if (!deletingRisk) return;
+    try {
+      await deleteRisk(deletingRisk.id);
+      setRisks(risks.filter(r => r.id !== deletingRisk.id));
+      toast({ title: 'Success', description: 'Risk deleted successfully.' });
+    } catch (error) {
+      toast({ title: 'Error', description: (error as Error).message, variant: 'destructive' });
+    } finally {
+      setDeletingRisk(null);
+    }
+  };
+
+  const divisions = [...new Set(users.map(user => user.division).filter(Boolean))];
+
+  if (!selectedDivision) {
+    return (
+      <>
+        <PageHeader title="Risk Register" description="Pilih divisi untuk melihat detail risiko operasional." />
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {divisions.map(division => (
+            <Card key={division} className="cursor-pointer transition-all hover:shadow-lg" onClick={() => handleDivisionClick(division)}>
+              <CardHeader>
+                <CardTitle>{division}</CardTitle>
+                <CardDescription>
+                  {risks.filter(r => r.divisi === division).length} risks recorded
+                </CardDescription>
+              </CardHeader>
+            </Card>
+          ))}
+        </div>
       </>
     );
   }
+
+  const filteredRisks = risks.filter(r => r.divisi === selectedDivision);
 
   return (
     <>
@@ -184,9 +310,9 @@ useEffect(() => {
                 </TableRow>
             </TableHeader>
             <TableBody>
-                {filteredRisks.map((risk) => (
-                <TableRow key={risk.No}>
-                    <TableCell className="font-medium">{risk.id}</TableCell>
+                {filteredRisks.map((risk, index) => (
+                <TableRow key={risk.id}>
+                    <TableCell className="font-medium">{index + 1}</TableCell>
                     <TableCell>{risk.kategori_risiko}</TableCell>
                     <TableCell>{risk.jenis_risiko}</TableCell>
                     <TableCell>
@@ -200,19 +326,17 @@ useEffect(() => {
                           {risk.risiko_residual}
                       </Badge>
                     </TableCell>
-<TableCell>
-  <div className="flex flex-col">
-    <span className="font-medium">{risk.pemilik_nama}</span>
-    <Badge variant="outline" className="w-fit mt-1">
-      {risk.jabatan}
-    </Badge>
-  </div>
-</TableCell>
-
-
+                    <TableCell>
+                      <div className="flex flex-col">
+                        <span className="font-medium">{risk.pemilik_nama}</span>
+                        <Badge variant="outline" className="w-fit mt-1">
+                          {risk.jabatan}
+                        </Badge>
+                      </div>
+                    </TableCell>
                     <TableCell>{risk.rencana_penanganan}</TableCell>
                     <TableCell>
-                    {risk['Fraud Indicator'] ? <CheckCircle className="h-5 w-5 text-success" /> : <XCircle className="h-5 w-5 text-destructive" />}
+                    {risk['Fraud Indicator'] ? <CheckCircle className="h-5 w-5 text-green-500" /> : <XCircle className="h-5 w-5 text-red-500" />}
                     </TableCell>
                     <TableCell>
                     <DropdownMenu>
@@ -292,16 +416,16 @@ useEffect(() => {
           <DialogHeader>
             <DialogTitle>Risk Details</DialogTitle>
             <DialogDescription>
-              Viewing details for risk no. {viewingRisk?.No}.
+              Viewing details for risk no. {viewingRisk?.id}.
             </DialogDescription>
           </DialogHeader>
           {viewingRisk && (
             <div className="space-y-4 text-sm max-h-[70vh] overflow-y-auto pr-6">
                 {Object.entries(viewingRisk).map(([key, value]) => (
                   <div key={key} className="grid grid-cols-3 gap-2 border-b pb-2">
-                    <span className="font-semibold text-muted-foreground">{key}</span>
+                    <span className="font-semibold text-muted-foreground">{key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</span>
                     <span className="col-span-2">
-                      {typeof value === 'boolean' ? (value ? 'Yes' : 'No') : value}
+                      {typeof value === 'boolean' ? (value ? 'Yes' : 'No') : String(value)}
                       </span>
                   </div>
                 ))}
