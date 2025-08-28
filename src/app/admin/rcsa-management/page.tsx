@@ -12,7 +12,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 
-type RCSAAdminData = Pick<RCSAData, 'no' | 'unitKerja' | 'potensiRisiko' | 'keterangan'>;
+type RCSAAdminData = Pick<RCSAData, 'no' | 'potensiRisiko' | 'keterangan'>;
 
 export default function RcsaManagementPage() {
   const { toast } = useToast();
@@ -22,7 +22,7 @@ export default function RcsaManagementPage() {
 
   useEffect(() => {
     const allData = getRcsaData();
-    const adminViewData = allData.map(({ no, unitKerja, potensiRisiko, keterangan }) => ({ no, unitKerja, potensiRisiko, keterangan }));
+    const adminViewData = allData.map(({ no, potensiRisiko, keterangan }) => ({ no, potensiRisiko, keterangan }));
     setData(adminViewData);
     setIsLoading(false);
   }, []);
@@ -41,7 +41,6 @@ export default function RcsaManagementPage() {
   const handleAddNew = () => {
     const newRisk: RCSAAdminData = {
         no: data.length > 0 ? Math.max(...data.map(d => d.no)) + 1 : 1,
-        unitKerja: '',
         potensiRisiko: '',
         keterangan: '',
     };
@@ -74,7 +73,7 @@ export default function RcsaManagementPage() {
 
       updateRcsaData(finalDataWithoutRemoved);
       
-      setData(finalDataWithoutRemoved.map(({ no, unitKerja, potensiRisiko, keterangan }) => ({ no, unitKerja, potensiRisiko, keterangan })));
+      setData(finalDataWithoutRemoved.map(({ no, potensiRisiko, keterangan }) => ({ no, potensiRisiko, keterangan })));
 
       toast({
         title: 'Sukses!',
@@ -118,16 +117,6 @@ export default function RcsaManagementPage() {
               <CardTitle>Master Risiko #{index + 1}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div>
-                <Label htmlFor={`unit-kerja-${index}`}>Unit Kerja</Label>
-                <Input
-                  id={`unit-kerja-${index}`}
-                  value={row.unitKerja || ''}
-                  onChange={(e) =>
-                    handleInputChange(index, 'unitKerja', e.target.value)
-                  }
-                />
-              </div>
               <div>
                 <Label htmlFor={`potensi-risiko-${index}`}>Potensi Risiko (Pertanyaan untuk User)</Label>
                 <Textarea

@@ -140,7 +140,7 @@ export default function Rcsapage() {
 
   const handleInputChange = (
     index: number,
-    field: keyof RCSAData,
+    field: keyof Omit<RCSAData, 'no'>,
     value: string | number | null
   ) => {
     const newData = [...data];
@@ -228,7 +228,6 @@ export default function Rcsapage() {
             <CardHeader>
               <div className="flex justify-between items-start">
                   <div>
-                    <p className="text-sm font-semibold text-primary">{row.unitKerja}</p>
                     <CardTitle>Potensi Risiko #{row.no}</CardTitle>
                   </div>
               </div>

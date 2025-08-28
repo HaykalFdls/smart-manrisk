@@ -5,7 +5,6 @@ import type { RCSAData } from './rcsa-data';
 const masterData: Omit<RCSAData, 'besaranInheren' | 'levelInheren' | 'besaranResidual' | 'levelResidual'>[] = [
   {
     no: 1,
-    unitKerja: 'Teller',
     potensiRisiko: 'Terdapat selisih KAS Teller',
     jenisRisiko: null,
     penyebabRisiko: null,
@@ -21,7 +20,6 @@ const masterData: Omit<RCSAData, 'besaranInheren' | 'levelInheren' | 'besaranRes
   },
   {
     no: 2,
-    unitKerja: 'Teller',
     potensiRisiko: 'Terdapat pengisian slip oleh nasabah yang tidak dilakukan dengan benar (tidak lengkap, salah alamat, tidak diverifikasi)',
     jenisRisiko: null,
     penyebabRisiko: null,
@@ -37,7 +35,6 @@ const masterData: Omit<RCSAData, 'besaranInheren' | 'levelInheren' | 'besaranRes
   },
   {
     no: 3,
-    unitKerja: 'Operasional',
     potensiRisiko: 'Terjadi kelebihan pembayaran yang pada nasabah yang menarik uang cash pada teller',
     jenisRisiko: null,
     penyebabRisiko: null,
@@ -53,7 +50,6 @@ const masterData: Omit<RCSAData, 'besaranInheren' | 'levelInheren' | 'besaranRes
   },
   {
     no: 4,
-    unitKerja: 'Layanan Nasabah',
     potensiRisiko: 'Terdapat pemalsuan tandatangan dari nasabah terhadap slip dll',
     jenisRisiko: null,
     penyebabRisiko: null,
@@ -69,7 +65,6 @@ const masterData: Omit<RCSAData, 'besaranInheren' | 'levelInheren' | 'besaranRes
   },
   {
     no: 5,
-    unitKerja: 'ATM',
     potensiRisiko: 'Terdapat selisih antara uang pada Mesin ATM dengan catatan buku besar kas ATM',
     jenisRisiko: null,
     penyebabRisiko: null,

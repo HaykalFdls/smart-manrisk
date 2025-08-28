@@ -25,7 +25,7 @@ const getLevelFromBesaran = (besaran: number | null | undefined) => {
 
 const DetailRow = ({ label, value }: { label: string, value: React.ReactNode }) => (
     <div className="grid grid-cols-2 justify-between py-2">
-        <p className="text-sm text-muted-foreground">{label}</p>
+        <div className="text-sm text-muted-foreground">{label}</div>
         <div className="text-sm font-medium text-right">{value || '-'}</div>
     </div>
 );
@@ -39,7 +39,6 @@ const RiskReportDetail = ({ data }: { data: RCSAData }) => {
     return (
         <Card className="mb-4">
             <CardHeader>
-                <p className="text-sm font-semibold text-primary">{data.unitKerja}</p>
                 <CardTitle className="text-lg">Risiko #{data.no}: {data.potensiRisiko}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4 text-sm">
