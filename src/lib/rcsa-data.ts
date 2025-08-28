@@ -103,25 +103,26 @@ export const addRcsaSubmission = (submissionData: RCSAData[]) => {
     }
 };
 
-// Function to get the FULL master data, used by admin management page.
+// --- Functions for Master Data Template (Admin management) ---
+
+// Function to get the MASTER data template
 export const getRcsaData = (): RCSAData[] => {
     // This is now just an alias for getting a fresh template.
     // The "draft" is the user's working copy.
     return getRcsaMasterData();
 };
 
-// Function to update the master data template itself. Used by admin management page.
+// Function to update the MASTER data template
 export const updateRcsaData = (newData: RCSAData[]) => {
-    // This function will update the master template. In a real app, this would write to a DB.
+    // In a real app, this would write to a DB.
     // For our simulation, we can't directly modify the imported masterData constant.
-    // A better approach for a real app would be to fetch this from an API.
-    // For now, let's update what the user starts with by overwriting the draft key.
+    // For now, let's update what the user starts with by overwriting the draft key
+    // IF AND ONLY IF there is no data there. This is a bit of a hack for local dev.
     if (typeof window === 'undefined') {
         return;
     }
     try {
-        // We are updating the "template" which is what a new user gets.
-        // In our localStorage simulation, the draft key holds this initial state.
+        // This is a destructive action for the sake of the demo. A real app would have a dedicated "master" key.
         window.localStorage.setItem(RCSA_DRAFT_KEY, JSON.stringify(newData));
     } catch (error) {
         console.error("Failed to update master data in localStorage", error);
