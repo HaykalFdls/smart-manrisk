@@ -148,42 +148,56 @@ export default function RiskRegisterPage() {
     <div className="flex flex-1 flex-col p-4 md:p-6 lg:p-8">
       <div className="mb-8">
         <h1 className="text-3xl font-bold tracking-tight">Risk Register</h1>
-        <p className="text-muted-foreground">Pilih divisi untuk melihat detail risiko operasional.</p>
+        <p className="text-muted-foreground">Pilih divisi atau kantor cabang untuk melihat detail risiko operasional.</p>
       </div>
-      <Card>
-        <CardHeader>
-          <CardTitle>Kantor Pusat</CardTitle>
-          <CardDescription>Daftar divisi dan unit kerja di bawah kantor pusat.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {divisionData.map(({ division, total, Icon, description }, index) => (
-              <div key={division}>
-                <div
-                  className="flex items-center gap-4 rounded-lg p-3 cursor-pointer transition-colors hover:bg-accent"
-                  onClick={() => handleDivisionClick(division)}
-                >
-                  <div className="rounded-lg bg-primary/10 p-3 text-primary">
-                    <Icon className="h-6 w-6" />
-                  </div>
-                  <div className="flex-1">
-                    <p className="font-semibold">{division.replace(/Divisi|Desk/g, '').trim()}</p>
-                    <p className="text-sm text-muted-foreground">{description}</p>
-                  </div>
-                  <div className="flex items-center gap-4">
-                    <div className="text-right">
-                      <p className="font-bold text-lg">{total}</p>
-                      <p className="text-xs text-muted-foreground">Risiko</p>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+        <Card>
+          <CardHeader>
+            <CardTitle>Kantor Pusat</CardTitle>
+            <CardDescription>Daftar divisi dan unit kerja di bawah kantor pusat.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {divisionData.map(({ division, total, Icon, description }, index) => (
+                <div key={division}>
+                  <div
+                    className="flex items-center gap-4 rounded-lg p-3 cursor-pointer transition-colors hover:bg-accent"
+                    onClick={() => handleDivisionClick(division)}
+                  >
+                    <div className="rounded-lg bg-primary/10 p-3 text-primary">
+                      <Icon className="h-6 w-6" />
                     </div>
-                    <ArrowRight className="h-5 w-5 text-muted-foreground" />
+                    <div className="flex-1">
+                      <p className="font-semibold">{division.replace(/Divisi|Desk/g, '').trim()}</p>
+                      <p className="text-sm text-muted-foreground">{description}</p>
+                    </div>
+                    <div className="flex items-center gap-4">
+                      <div className="text-right">
+                        <p className="font-bold text-lg">{total}</p>
+                        <p className="text-xs text-muted-foreground">Risiko</p>
+                      </div>
+                      <ArrowRight className="h-5 w-5 text-muted-foreground" />
+                    </div>
                   </div>
+                  {index < divisionData.length - 1 && <Separator className="mt-4" />}
                 </div>
-                {index < divisionData.length - 1 && <Separator className="mt-4" />}
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+            <CardHeader>
+                <CardTitle>Kantor Cabang</CardTitle>
+                <CardDescription>Daftar risiko untuk setiap kantor cabang.</CardDescription>
+            </CardHeader>
+            <CardContent>
+                <div className="flex items-center justify-center h-48 text-muted-foreground">
+                    <p>Data kantor cabang akan segera tersedia.</p>
+                </div>
+            </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }
