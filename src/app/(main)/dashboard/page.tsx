@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import { BarChart, CreditCard, DollarSign, Users } from 'lucide-react';
-import KpiCard from '@/components/dashboard/kpi-card';
-import RiskChart from '@/components/dashboard/risk-chart';
+import { BarChart, CreditCard, DollarSign, Users } from "lucide-react";
+import KpiCard from "@/components/dashboard/kpi-card";
+import RiskChart from "@/components/dashboard/risk-chart";
 
-export default function Dashboard() {
+export default function DashboardPage() {
   return (
     <div className="flex flex-1 flex-col p-4 md:p-6 lg:p-8">
       <div className="mb-8">
@@ -13,6 +13,8 @@ export default function Dashboard() {
           Welcome to your RiskWise Dashboard.
         </p>
       </div>
+
+      {/* KPI Cards */}
       <div className="grid gap-4 md:grid-cols-2 md:gap-8 lg:grid-cols-4">
         <KpiCard
           title="Total Risks"
@@ -41,6 +43,8 @@ export default function Dashboard() {
           Icon={DollarSign}
         />
       </div>
+
+      {/* Risk Chart */}
       <div className="mt-8">
         <RiskChart />
       </div>

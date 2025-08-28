@@ -1,6 +1,6 @@
-
-import Dashboard from '@/app/dashboard';
+import { redirect } from "next/navigation";
 
 export default function HomePage() {
-  return <Dashboard />;
+  // misal redirect langsung ke login
+  redirect("/login");
 }
