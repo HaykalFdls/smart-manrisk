@@ -1,203 +1,226 @@
-
 'use client';
 
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Cpu, Landmark, Gavel, Users, ClipboardList, ArrowRight, Shield, Building, BarChart, AreaChart, DollarSign, Briefcase, FileText, Scale, Handshake, Search, Lightbulb, UserCheck, FolderGit2, Coins } from 'lucide-react';
-import type { LucideIcon } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
 
-const divisionData: { division: string; total: number; Icon: LucideIcon; description: string }[] = [
-  {
-    division: 'Divisi Audit Internal',
-    total: 2,
-    Icon: Search,
-    description: 'Risiko terkait audit dan pengawasan internal.',
-  },
-  {
-    division: 'Divisi Sumber Daya Insani (SDI)',
-    total: 1,
-    Icon: Users,
-    description: 'Risiko terkait personil, talenta, dan budaya kerja.',
-  },
-  {
-    division: 'Divisi Perencanaan Strategis',
-    total: 1,
-    Icon: Lightbulb,
-    description: 'Risiko terkait perencanaan dan strategi jangka panjang.',
-  },
-  {
-    division: 'Divisi Penyelamatan & Penyelesaian Pembiayaan (P3)',
-    total: 1,
-    Icon: Handshake,
-    description: 'Risiko terkait penyelamatan dan penyelesaian kredit.',
-  },
-  {
-    division: 'Divisi Pembiayaan Konsumer',
-    total: 1,
-    Icon: UserCheck,
-    description: 'Risiko pada produk pembiayaan untuk konsumen.',
-  },
-  {
-    division: 'Divisi Dana Jasa Ritel',
-    total: 0,
-    Icon: Coins,
-    description: 'Risiko terkait pengelolaan dana dan jasa di segmen ritel.',
-  },
-  {
-    division: 'Divisi Dana Korporasi dan Institusi (Insbank)',
-    total: 0,
-    Icon: Landmark,
-    description: 'Risiko terkait pendanaan dari korporasi dan institusi.',
-  },
-  {
-    division: 'Divisi Kepatuhan',
-    total: 1,
-    Icon: Gavel,
-    description: 'Risiko terkait regulasi, hukum, dan kebijakan internal.',
-  },
-  {
-    division: 'Divisi Teknologi Informasi',
-    total: 3,
-    Icon: Cpu,
-    description: 'Risiko terkait infrastruktur, sistem, dan keamanan siber.',
-  },
-  {
-    division: 'Divisi Operasional',
-    total: 2,
-    Icon: ClipboardList,
-    description: 'Risiko terkait proses internal, kegagalan sistem, dan eksternal.',
-  },
-  {
-    division: 'Divisi Pengendalian Keuangan',
-    total: 2,
-    Icon: AreaChart,
-    description: 'Risiko terkait pasar, kredit, dan pelaporan keuangan.',
-  },
-  {
-    division: 'Divisi Risiko Pembiayaan',
-    total: 0,
-    Icon: DollarSign,
-    description: 'Analisis dan mitigasi risiko dari seluruh aktivitas pembiayaan.',
-  },
-  {
-    division: 'Divisi Pembiayaan UMKM, Ritel, & Komersil',
-    total: 0,
-    Icon: Briefcase,
-    description: 'Risiko dari pembiayaan untuk segmen UMKM, ritel, dan komersil.',
-  },
-  {
-    division: 'Divisi Manajemen Risiko',
-    total: 0,
-    Icon: Shield,
-    description: 'Pengelolaan kerangka kerja manajemen risiko secara keseluruhan.',
-  },
-  {
-    division: 'Divisi Bisnis Digital',
-    total: 1,
-    Icon: FolderGit2,
-    description: 'Risiko terkait inovasi dan operasional produk digital.',
-  },
-  {
-    division: 'Desk Sekretariat Perusahaan (Corsec)',
-    total: 0,
-    Icon: Building,
-    description: 'Risiko terkait komunikasi dan administrasi perusahaan.',
-  },
-  {
-    division: 'Desk Pengembangan Produk & Prosedur (Sysdur)',
-    total: 0,
-    Icon: BarChart,
-    description: 'Risiko dalam pengembangan produk dan penyusunan prosedur.',
-  },
-  {
-    division: 'Desk Administrasi Pembiayaan & Bisnis Legal (APBL)',
-    total: 0,
-    Icon: FileText,
-    description: 'Risiko terkait administrasi dan aspek legal pembiayaan.',
-  },
-  {
-    division: 'Desk Legal',
-    total: 0,
-    Icon: Scale,
-    description: 'Risiko hukum yang dihadapi oleh perusahaan.',
-  },
-  {
-    division: 'Desk Treasury',
-    total: 0,
-    Icon: DollarSign,
-    description: 'Risiko terkait pengelolaan likuiditas dan investasi keuangan.',
-  },
+import { PageHeader } from "@/components/page-header";
+import { Button } from "@/components/ui/button";
+import {
+  Card, CardContent, CardDescription, CardHeader, CardTitle
+} from "@/components/ui/card";
+import {
+  Table, TableBody, TableCell, TableHead, TableHeader, TableRow
+} from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import {
+  Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle
+} from "@/components/ui/dialog";
+import {
+  DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger
+} from "@/components/ui/dropdown-menu";
+import {
+  Form, FormControl, FormField, FormItem, FormLabel, FormMessage
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { toast } from '@/hooks/use-toast';
+
+import { fetchRisks, createRisk, updateRisk, deleteRisk, fetchUsers } from "@/lib/api";
+import { Risk } from "@/types/risk";
+import { User } from "@/types/user";
+
+import {
+  Cpu, Landmark, Gavel, Users, ClipboardList, Shield, Building,
+  BarChart, AreaChart, DollarSign, Briefcase, FileText, Scale,
+  Handshake, Search, Lightbulb, UserCheck, FolderGit2, Coins
+} from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
+
+
+// ---------------- Schema Form ----------------
+const riskSchema = z.object({
+  nama_risk: z.string().min(3, "Nama risk wajib diisi"),
+  deskripsi: z.string().min(5, "Deskripsi wajib diisi"),
+  kategori: z.string().min(1, "Kategori wajib dipilih"),
+  likelihood: z.string().min(1, "Likelihood wajib diisi"),
+  impact: z.string().min(1, "Impact wajib diisi"),
+  pemilik: z.string().min(1, "Pemilik wajib dipilih"),
+});
+
+// ---------------- Division Data ----------------
+interface Division {
+  title: string;
+  description: string;
+  total: number;
+  icon: LucideIcon;
+}
+
+const divisionData: Division[] = [
+  { title: 'Direktorat Teknologi Informasi', description: 'Menyediakan solusi teknologi informasi', total: 12, icon: Cpu },
+  { title: 'Direktorat Keuangan', description: 'Mengelola keuangan perusahaan', total: 8, icon: DollarSign },
+  { title: 'Direktorat SDM & Umum', description: 'Mengatur sumber daya manusia dan umum', total: 15, icon: Users },
+  { title: 'Direktorat Kepatuhan', description: 'Mengawasi kepatuhan dan tata kelola', total: 5, icon: Shield },
+  { title: 'Direktorat Hukum', description: 'Menyediakan layanan hukum', total: 7, icon: Gavel },
+  { title: 'Direktorat Audit', description: 'Melakukan audit internal', total: 4, icon: ClipboardList },
 ];
 
+// ---------------- Main Component ----------------
 export default function RiskRegisterPage() {
   const router = useRouter();
+  const [risks, setRisks] = useState<Risk[]>([]);
+  const [users, setUsers] = useState<User[]>([]);
+  const [selectedDivision, setSelectedDivision] = useState<string | null>(null);
 
-  const handleDivisionClick = (division: string) => {
-    router.push(`/risk-register/${encodeURIComponent(division)}`);
+  const [editingRisk, setEditingRisk] = useState<Risk | null>(null);
+  const [viewingRisk, setViewingRisk] = useState<Risk | null>(null);
+
+  // Fetch data risks + users
+  useEffect(() => {
+    fetchRisks().then(setRisks);
+    fetchUsers().then(setUsers);
+  }, []);
+
+  // Hitung total risiko per divisi (dummy match)
+  const divisionTotals = divisionData.map(div => ({
+    ...div,
+    total: risks.filter(r => r.kategori === div.title).length || div.total
+  }));
+
+  // ---------------- Form ----------------
+  const form = useForm<z.infer<typeof riskSchema>>({
+    resolver: zodResolver(riskSchema),
+    defaultValues: {
+      nama_risk: "",
+      deskripsi: "",
+      kategori: "",
+      likelihood: "",
+      impact: "",
+      pemilik: "",
+    },
+  });
+
+  const onSubmit = async (data: z.infer<typeof riskSchema>) => {
+    try {
+      if (editingRisk) {
+        const updated = await updateRisk(editingRisk.id, data);
+        setRisks(risks.map(r => (r.id === updated.id ? updated : r)));
+        toast({ title: "Risk updated successfully" });
+      } else {
+        const created = await createRisk(data);
+        setRisks([...risks, created]);
+        toast({ title: "Risk created successfully" });
+      }
+      setEditingRisk(null);
+      form.reset();
+    } catch {
+      toast({ title: "Error saving risk", variant: "destructive" });
+    }
   };
 
+  // ---------------- UI ----------------
   return (
-    <div className="flex flex-1 flex-col p-4 md:p-6 lg:p-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold tracking-tight">Risk Register</h1>
-        <p className="text-muted-foreground">Pilih divisi atau kantor cabang untuk melihat detail risiko operasional.</p>
-      </div>
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
-        <Card>
-          <CardHeader>
-            <CardTitle>Kantor Pusat</CardTitle>
-            <CardDescription>Daftar divisi dan unit kerja di bawah kantor pusat.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {divisionData.map(({ division, total, Icon, description }, index) => (
-                <div key={division}>
-                  <div
-                    className="flex items-center gap-4 rounded-lg p-3 cursor-pointer transition-colors hover:bg-accent"
-                    onClick={() => handleDivisionClick(division)}
-                  >
-                    <div className="rounded-lg bg-primary/10 p-3 text-primary">
-                      <Icon className="h-6 w-6" />
-                    </div>
-                    <div className="flex-1">
-                      <p className="font-semibold">{division.replace(/Divisi|Desk/g, '').trim()}</p>
-                      <p className="text-sm text-muted-foreground">{description}</p>
-                    </div>
-                    <div className="flex items-center gap-4">
-                      <div className="text-right">
-                        <p className="font-bold text-lg">{total}</p>
-                        <p className="text-xs text-muted-foreground">Risiko</p>
-                      </div>
-                      <ArrowRight className="h-5 w-5 text-muted-foreground" />
-                    </div>
-                  </div>
-                  {index < divisionData.length - 1 && <Separator className="mt-4" />}
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+    <div className="p-6">
+      <PageHeader title="Risk Register" description="Kelola risiko perusahaan berdasarkan divisi" />
 
-        <Card>
-            <CardHeader>
-                <CardTitle>Kantor Cabang</CardTitle>
-                <CardDescription>Daftar risiko untuk setiap kantor cabang.</CardDescription>
-            </CardHeader>
-            <CardContent>
-                <div className="flex items-center justify-center h-48 text-muted-foreground">
-                    <p>Data kantor cabang akan segera tersedia.</p>
-                </div>
-            </CardContent>
-        </Card>
-      </div>
+      {!selectedDivision ? (
+        <>
+          <h2 className="text-xl font-semibold mb-4">Kantor Pusat</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {divisionTotals.map((division, idx) => (
+              <Card
+                key={idx}
+                className="cursor-pointer hover:shadow-lg transition"
+                onClick={() => setSelectedDivision(division.title)}
+              >
+                <CardHeader className="flex flex-row items-center gap-3">
+                  <division.icon className="w-6 h-6 text-primary" />
+                  <div>
+                    <CardTitle className="text-base">{division.title}</CardTitle>
+                    <CardDescription>{division.description}</CardDescription>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm">Total Risks: <span className="font-semibold">{division.total}</span></p>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </>
+      ) : (
+        <>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-semibold">{selectedDivision}</h2>
+            <Button onClick={() => setSelectedDivision(null)}>← Back</Button>
+          </div>
+
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Nama Risk</TableHead>
+                <TableHead>Kategori</TableHead>
+                <TableHead>Likelihood</TableHead>
+                <TableHead>Impact</TableHead>
+                <TableHead>Pemilik</TableHead>
+                <TableHead>Aksi</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {risks
+                .filter(r => r.kategori === selectedDivision)
+                .map(risk => (
+                  <TableRow key={risk.id}>
+                    <TableCell>{risk.nama_risk}</TableCell>
+                    <TableCell>{risk.kategori}</TableCell>
+                    <TableCell>{risk.likelihood}</TableCell>
+                    <TableCell>{risk.impact}</TableCell>
+                    <TableCell>{users.find(u => u.id === risk.pemilik)?.name || risk.pemilik}</TableCell>
+                    <TableCell className="space-x-2">
+                      <Button size="sm" variant="outline" onClick={() => setViewingRisk(risk)}>View</Button>
+                      <Button size="sm" onClick={() => setEditingRisk(risk)}>Edit</Button>
+                      <Button size="sm" variant="destructive" onClick={async () => {
+                        await deleteRisk(risk.id);
+                        setRisks(risks.filter(r => r.id !== risk.id));
+                        toast({ title: "Risk deleted" });
+                      }}>Delete</Button>
+                    </TableCell>
+                  </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </>
+      )}
+
+      {/* View Details Dialog */}
+      <Dialog open={!!viewingRisk} onOpenChange={(o) => !o && setViewingRisk(null)}>
+        <DialogContent className="sm:max-w-3xl">
+          <DialogHeader>
+            <DialogTitle>Risk Details</DialogTitle>
+            <DialogDescription>Detail risiko ID: {viewingRisk?.id}</DialogDescription>
+          </DialogHeader>
+          {viewingRisk && (
+            <div className="text-sm max-h-[70vh] overflow-y-auto pr-4">
+              <dl className="divide-y">
+                {Object.entries(viewingRisk).map(([key, value]) => (
+                  <div key={key} className="grid grid-cols-3 gap-4 py-2">
+                    <dt className="font-semibold text-muted-foreground">{key}</dt>
+                    <dd className="col-span-2 whitespace-pre-wrap leading-relaxed">
+                      {typeof value === "boolean" ? (value ? "Yes" : "No") : String(value)}
+                    </dd>
+                  </div>
+                ))}
+              </dl>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setViewingRisk(null)}>Close</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
